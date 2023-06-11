@@ -1,0 +1,15 @@
+schemer - wrapper around raylib and chibi-scheme that brings back the fun of
+game dev (and gui stuff).
+
+main idea:
+
+create a new schemer project:
+  $ schemer init
+
+run debug version:
+  $ schemer run
+
+build an executable of the game:
+  $ schemer build
+
+
