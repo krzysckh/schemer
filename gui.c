@@ -3,14 +3,7 @@
 #include <stdio.h>
 #include <raylib.h>
 
-void gui_draw_square(int x, int y, int w, int h, int r, int g, int b, int a) {
-  DrawRectangle(x, y, w, h, CLITERAL(Color){r, g, b, a});
-}
-
-void gui_draw_line(int x1, int y1, int x2, int y2, int r, int g, int b,
-    int a) {
-  DrawLine(x1, y1, x2, y2, CLITERAL(Color){r, g, b, a});
-}
+Font default_font;
 
 void init_gui(void) {
   /* TODO: define-width, define-height etc. */
@@ -22,13 +15,14 @@ void init_gui(void) {
   InitWindow(width, height, title);
   SetTargetFPS(targetfps);
 
+  default_font = LoadFontFromMemory(".ttf", UNIFONT, UNIFONT_LEN,
+      UNIFONT_FONT_SIZE, NULL, 0);
 }
 
 void run_gui(void) {
   while (!WindowShouldClose()) {
     BeginDrawing();
     {
-      ClearBackground(WHITE);
       scm_update_screen();
     }
     EndDrawing();

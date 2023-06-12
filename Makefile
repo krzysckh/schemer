@@ -5,7 +5,7 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
 
 LDFLAGS=-L./chibi-scheme -L/usr/local/lib -lchibi-scheme -lraylib -lm
 TARGET=schemer
-OFILES=schemer.o scm.o gui.o
+OFILES=unifont.o schemer.o scm.o gui.o
 
 SCHEME=./chibi-scheme/chibi-scheme
 SCMFLAGS=-A ./chibi-scheme/lib/
@@ -15,11 +15,13 @@ all: chibi $(OFILES) startup-image
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES)
 startup-image:
 	$(SCHEME) $(SCMFLAGS) -d startup-image
+unifont.c:
+	xxd -include ./third-party/unifont-15.0.06.ttf unifont.c
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 chibi:
 	$(MAKE) -C chibi-scheme
 clean:
-	rm -rf $(TARGET) *.o startup-image *.core
+	rm -rf $(TARGET) *.o startup-image *.core unifont.c
 full-clean: clean
 	$(MAKE) -C chibi-scheme clean
