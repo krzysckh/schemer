@@ -10,4 +10,5 @@ void end_gui(void);
 void run_gui(void);
 
 /* gui.c tunnel funcitons */
-void gui_draw_square(int x, int y, int w, int h, int r, int g, int b, int a);
+void gui_draw_square(int, int, int, int, int, int, int, int);
+void gui_draw_line(int, int, int, int, int, int, int, int);

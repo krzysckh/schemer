@@ -1,8 +1,9 @@
 CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
-       -I./chibi-scheme/include -I/usr/local/bin \
+       -I./chibi-scheme/include -I/usr/local/include \
+       -Wno-unused-parameter \
        -g
 
-LDFLAGS=-L./chibi-scheme -lchibi-scheme -lraylib
+LDFLAGS=-L./chibi-scheme -L/usr/local/lib -lchibi-scheme -lraylib -lm
 TARGET=schemer
 OFILES=schemer.o scm.o gui.o
 
@@ -19,6 +20,6 @@ startup-image:
 chibi:
 	$(MAKE) -C chibi-scheme
 clean:
-	rm -rf $(TARGET) *.o startup-image
+	rm -rf $(TARGET) *.o startup-image *.core
 full-clean: clean
 	$(MAKE) -C chibi-scheme clean
