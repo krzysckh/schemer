@@ -52,7 +52,6 @@ static void ctx_add(const char *s) {
     exit(1);
 }
 
-/* TODO: draw text */
 static sexp scm_func_text(sexp ctx, sexp self, sexp_sint_t n,
     sexp text, sexp x, sexp y) {
 
