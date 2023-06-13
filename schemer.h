@@ -1,3 +1,8 @@
+#define PLOT_SCM_PATH   "scm/plot.scm"
+#define COLORS_SCM_PATH "scm/colors.scm"
+#define SHAPES_SCM_PATH "scm/shapes.scm"
+#define CORE_SCM_PATH   "scm/core.scm"
+
 /* unifont.c */
 #define UNIFONT_FONT_SIZE 20
 #define UNIFONT     __third_party_unifont_15_0_06_ttf

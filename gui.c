@@ -17,6 +17,9 @@ void init_gui(void) {
 
   default_font = LoadFontFromMemory(".ttf", UNIFONT, UNIFONT_LEN,
       UNIFONT_FONT_SIZE, NULL, 0);
+
+  SetWindowState(FLAG_WINDOW_RESIZABLE);
+  SetWindowMinSize(320, 240);
 }
 
 void run_gui(void) {

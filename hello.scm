@@ -1,15 +1,21 @@
 ; (define-width 640)
 ; (define-height 480)
 
-;(prefer-graphics-type "plot")
-
-(define c-red '(255 0 0 255))
+(use "colors")
+(use "plot")
+(use "core")
 
 ;(define-background-color '(255 255 255))
-(define-font-color c-red)
+(define-font-color black)
+
+(define opt (list-copy default-plot-options))
+(set-cdr! (assq 'x-values opt) (list (range 0 10)))
+(set-cdr! (assq 'y-values opt) (list (range 0 10)))
 
 (define update-screen
   (lambda ()
-    (text "halo" 50 50)
-    (draw-line c-red 0 0 640 480)
-    (draw-line c-red 0 480 640 0)))
+    (plot opt)
+    (define-font-color red)
+    (text "obiecuje, kiedys zadziala" 300 300)
+    (define-font-color black)))
+

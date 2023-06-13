@@ -8,26 +8,22 @@
 
 #include <raylib.h>
 
-typedef enum {
-  GT_ALL,
-  GT_MATH,
-  GT_PLOT,
-  GT_GAME
-} Pref_graphics_type;
-
 extern Font default_font;
 
 static sexp scm_ctx = NULL;
-static Pref_graphics_type graphics_type = GT_ALL;
 
 static Color background_color = WHITE;
 static Color font_color = BLACK;
 
-static void print_if_exception(sexp s) {
-  if (sexp_exceptionp(s))
+static int print_if_exception(sexp s) {
+  if (sexp_exceptionp(s)) {
     sexp_print_exception(scm_ctx, s,
         sexp_make_output_port(scm_ctx, stdout,
           sexp_c_string(scm_ctx, NULL, -1)));
+    return 1;
+  }
+
+  return 0;
 }
 
 static void list2rgba(sexp ctx, sexp l, int *r, int *g, int *b, int *a) {
@@ -42,6 +38,18 @@ static void list2rgba(sexp ctx, sexp l, int *r, int *g, int *b, int *a) {
   *g = sexp_unbox_fixnum(data[1]);
   *b = sexp_unbox_fixnum(data[2]);
   *a = sexp_vector_length(vec) == 4 ? sexp_unbox_fixnum(data[3]) : 255;
+}
+
+/* TODO: keep track of added files. don't evaluate files that have been already
+ * evaluated */
+static void ctx_add(const char *s) {
+  sexp obj, e;
+
+  obj = sexp_c_string(scm_ctx, s, -1);
+  e = sexp_load(scm_ctx, obj, NULL);
+
+  if (print_if_exception(e))
+    exit(1);
 }
 
 /* TODO: draw text */
@@ -59,21 +67,28 @@ static sexp scm_func_text(sexp ctx, sexp self, sexp_sint_t n,
   return SEXP_VOID;
 }
 
-static sexp scm_func_prefer_grpahics_type(sexp ctx, sexp self, sexp_sint_t n,
+static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
     sexp s) {
 
-  char *type;
+  char *v;
   assert(sexp_stringp(s));
 
-  type = sexp_string_data(s);
+  v = sexp_string_data(s);
 
-  if (strcmp(type, "math") == 0)      graphics_type = GT_MATH;
-  else if (strcmp(type, "all") == 0)  graphics_type = GT_ALL;
-  else if (strcmp(type, "plot") == 0) graphics_type = GT_PLOT;
-  else if (strcmp(type, "game") == 0) graphics_type = GT_GAME;
-  else return sexp_make_boolean(0);
+  if (strcmp(v, "plot") == 0)
+    ctx_add(PLOT_SCM_PATH);
+  else if (strcmp(v, "colors") == 0)
+    ctx_add(COLORS_SCM_PATH);
+  else if (strcmp(v, "shapes") == 0)
+    ctx_add(SHAPES_SCM_PATH);
+  else if (strcmp(v, "core") == 0)
+    ctx_add(CORE_SCM_PATH);
+  else {
+    sexp_warn(scm_ctx, "using 'use' path as a regular path", NULL);
+    ctx_add(v); /* use as path */
+  }
 
-  return sexp_make_boolean(1);
+  return SEXP_VOID;
 }
 
 static sexp scm_func_draw_square(sexp ctx, sexp self, sexp_sint_t n,
@@ -136,6 +151,12 @@ static sexp scm_func_define_font_color(sexp ctx, sexp self, sexp_sint_t n,
   return SEXP_VOID;
 }
 
+static sexp scm_func_get_window_size(sexp ctx, sexp self, sexp_sint_t n) {
+  return sexp_list2(ctx,
+      sexp_make_fixnum(GetScreenWidth()),
+      sexp_make_fixnum(GetScreenHeight())); /* woah */
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -163,7 +184,10 @@ static void define_foreign(void) {
       "draw-line", 5, scm_func_draw_line);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
-      "prefer-graphics-type", 1, scm_func_prefer_grpahics_type);
+      "get-window-size", 0, scm_func_get_window_size);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "use", 1, scm_func_use);
 }
 
 void init_scheme(void) {
@@ -171,13 +195,14 @@ void init_scheme(void) {
   assert(scm_ctx == NULL);
 
   sexp_scheme_init();
-  scm_ctx = sexp_load_image("startup-image", 0, 0, SEXP_MAXIMUM_HEAP_SIZE);
+  scm_ctx = sexp_load_image("startup-image.img", 0, 0, SEXP_MAXIMUM_HEAP_SIZE);
 
   define_foreign();
 
   obj = sexp_c_string(scm_ctx, "hello.scm", -1);
   e = sexp_load(scm_ctx, obj, NULL);
-  print_if_exception(e);
+  if (print_if_exception(e))
+    exit(1);
 }
 
 void end_scheme(void) {
