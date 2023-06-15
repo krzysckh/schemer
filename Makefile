@@ -26,3 +26,5 @@ clean:
 	rm -rf $(TARGET) *.o *.img *.core unifont.c
 full-clean: clean
 	$(MAKE) -C chibi-scheme clean
+cloc:
+	cloc `ls | grep -v chibi-scheme | grep -v third-party`

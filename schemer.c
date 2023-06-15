@@ -3,8 +3,8 @@
 #include "schemer.h"
 
 int main (int argc, char *argv[]) {
-  init_scheme();
   init_gui();
+  init_scheme();
 
   run_gui();
 

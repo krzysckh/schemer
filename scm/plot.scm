@@ -8,6 +8,7 @@
   `((n-axis 2) ; 2 | 3
     (axis-names ("x axis" "y axis" "z axis"))
     (axis-colors (,red ,blue ,green))
+    (line-color ,red)
     (box-color ,black)
     (x-values ())
     (y-values ())
@@ -26,10 +27,6 @@
     (text (number->string xb) (- (get-window-width) plot-padding)
           (- (get-window-height) plot-padding))))
 
-(define create-xy-list 
-  (lambda (xv yv)
-    (map (lambda (x y) `(,x ,y)) xv yv)))
-
 ; TODO: don't assume xv is sorted
 (define plot2d
   (lambda (opt)
@@ -37,6 +34,7 @@
           (axis-names  (_get-opt opt 'axis-names))
           (axis-colors (_get-opt opt 'axis-colors))
           (box-color   (_get-opt opt 'box-color))
+          (line-color  (_get-opt opt 'line-color))
           (xv          (_get-opt opt 'x-values))
           (yv          (_get-opt opt 'y-values)))
       (rect
@@ -52,13 +50,44 @@
       ; cuh??
       (define xs (apply max xv))
       (define ys (apply max yv))
+      (define plot-width (- (get-window-width) (* plot-padding 2)))
+      (define plot-height (- (get-window-height) (* plot-padding 2)))
 
-      (map (lambda (x y)
-             ; TODO: przyszly ja prosze zrob to w jakis fajny sposob bo ja
-             ; nie mam dzisiaj juz sily serio
-             (draw-square orange x y 5 5))
-           xv yv)
+      (define x-min (apply min xv))
+      (define y-min (apply min yv))
+
+      (define points
+        (map (lambda (x y)
+	       ; this is very cringe
+	       ; update: i already forgot why and how is it working
+               (define sx (+ plot-padding
+			     (floor (* (+ (abs x-min) x)
+				       (/ plot-width (+ (abs x-min) xs))))))
+
+               (define sy (- (get-window-height)
+                            (+ plot-padding
+			       (floor (* (+ (abs y-min) y)
+					 (/ plot-height (+ (abs y-min) ys)))))))
+               (list sx sy))
+	     xv yv))
+
+      (for-each (lambda (i)
+                  (draw-line
+		    line-color
+                    (list-ref (list-ref points i) 0)
+                    (list-ref (list-ref points i) 1)
+                    (list-ref (list-ref points (+ i 1)) 0)
+                    (list-ref (list-ref points (+ i 1)) 1)))
+                (range 0 (- (length points) 1))) ; LMAOOO
+
       (draw-2d-scale xs ys))))
+
+(define plot-set-xy
+  (lambda (opt v)
+    (define vx (list-ref v 0))
+    (define vy (list-ref v 1))
+    (set-cdr! (assq 'x-values opt ) `(,vx))
+    (set-cdr! (assq 'y-values opt ) `(,vy))))
 
 (define plot
   (lambda (opt)
