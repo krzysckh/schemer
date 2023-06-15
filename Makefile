@@ -2,6 +2,7 @@ CC=clang
 CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
        -I./chibi-scheme/include -I/usr/local/include \
        -Wno-unused-parameter \
+			 -D_POSIX_C_SOURCE=2 \
        -g
 
 LDFLAGS=-L./chibi-scheme -L/usr/local/lib -lchibi-scheme -lraylib -lm

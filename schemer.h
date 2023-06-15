@@ -12,7 +12,7 @@ extern unsigned int __third_party_unifont_15_0_06_ttf_len;
 extern unsigned char __third_party_unifont_15_0_06_ttf[];
 
 /* scm.c */
-void init_scheme(void);
+void init_scheme(char *path);
 void end_scheme(void);
 void scm_update_screen(void);
 
@@ -33,3 +33,6 @@ void gui_draw_line(int, int, int, int, int, int, int, int);
 
 #define gui_clear_background(r,g,b,a) \
   ClearBackground((Color){r, g, b, a});
+
+/* very cool assert */
+#define A(x) if (!(x)) { errx(1, "assertion failed: %s\n", #x); }

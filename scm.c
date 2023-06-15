@@ -1,7 +1,7 @@
 #include "schemer.h"
 
 #include <stdio.h>
-#include <assert.h>
+#include <err.h>
 
 #include <chibi/eval.h>
 #include <chibi/gc_heap.h>
@@ -30,9 +30,8 @@ static void list2rgba(sexp ctx, sexp l, int *r, int *g, int *b, int *a) {
   sexp vec = sexp_list_to_vector(ctx, l);
   sexp* data = sexp_vector_data(vec);
 
-  assert(sexp_listp(scm_ctx, l));
-  assert(sexp_vector_length(vec) == 4 ||
-         sexp_vector_length(vec) == 3);
+  A(sexp_listp(scm_ctx, l));
+  A(sexp_vector_length(vec) == 4 || sexp_vector_length(vec) == 3);
 
   *r = sexp_unbox_fixnum(data[0]);
   *g = sexp_unbox_fixnum(data[1]);
@@ -55,9 +54,9 @@ static void ctx_add(const char *s) {
 static sexp scm_func_text(sexp ctx, sexp self, sexp_sint_t n,
     sexp text, sexp x, sexp y) {
 
-  assert(sexp_stringp(text));
-  assert(sexp_numberp(x));
-  assert(sexp_numberp(y));
+  A(sexp_stringp(text));
+  A(sexp_numberp(x));
+  A(sexp_numberp(y));
 
   DrawTextEx(default_font, sexp_string_data(text),
       (Vector2){(int)sexp_unbox_fixnum(x), (int)sexp_unbox_fixnum(y)},
@@ -70,7 +69,7 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
     sexp s) {
 
   char *v;
-  assert(sexp_stringp(s));
+  A(sexp_stringp(s));
 
   v = sexp_string_data(s);
 
@@ -94,10 +93,10 @@ static sexp scm_func_draw_square(sexp ctx, sexp self, sexp_sint_t n,
     sexp c, sexp x, sexp y, sexp w, sexp h) {
   int r, g, b, a;
 
-  assert(sexp_numberp(x));
-  assert(sexp_numberp(y));
-  assert(sexp_numberp(w));
-  assert(sexp_numberp(h));
+  A(sexp_numberp(x));
+  A(sexp_numberp(y));
+  A(sexp_numberp(w));
+  A(sexp_numberp(h));
   list2rgba(ctx, c, &r, &g, &b, &a);
 
   gui_draw_square(
@@ -115,10 +114,10 @@ static sexp scm_func_draw_line(sexp ctx, sexp self, sexp_sint_t n,
     sexp c, sexp x1, sexp y1, sexp x2, sexp y2) {
   int r, g, b, a;
 
-  assert(sexp_numberp(x1));
-  assert(sexp_numberp(y1));
-  assert(sexp_numberp(x2));
-  assert(sexp_numberp(y2));
+  A(sexp_numberp(x1));
+  A(sexp_numberp(y1));
+  A(sexp_numberp(x2));
+  A(sexp_numberp(y2));
   list2rgba(ctx, c, &r, &g, &b, &a);
 
   gui_draw_line(
@@ -189,19 +188,25 @@ static void define_foreign(void) {
       "use", 1, scm_func_use);
 }
 
-void init_scheme(void) {
-  sexp obj, e;
-  assert(scm_ctx == NULL);
+void init_scheme(char *path) {
+  A(scm_ctx == NULL);
 
   sexp_scheme_init();
   scm_ctx = sexp_load_image("startup-image.img", 0, 0, SEXP_MAXIMUM_HEAP_SIZE);
 
   define_foreign();
 
-  obj = sexp_c_string(scm_ctx, "hello.scm", -1);
-  e = sexp_load(scm_ctx, obj, NULL);
-  if (print_if_exception(e))
-    exit(1);
+  if (path)
+    ctx_add(path);
+  else {
+    /* this is so cool */
+    sexp_eval_string(
+      scm_ctx,
+      "(define update-screen (lambda () (text \"no base path given\" 0 0)))",
+      -1,
+      NULL
+    );
+  }
 }
 
 void end_scheme(void) {
