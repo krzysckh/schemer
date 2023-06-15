@@ -15,6 +15,9 @@ static sexp scm_ctx = NULL;
 static Color background_color = WHITE;
 static Color font_color = BLACK;
 
+static Texture2D *loaded_textures = NULL;
+static int n_loaded_textures = 0;
+
 static int print_if_exception(sexp s) {
   if (sexp_exceptionp(s)) {
     sexp_print_exception(scm_ctx, s,
@@ -155,6 +158,54 @@ static sexp scm_func_get_window_size(sexp ctx, sexp self, sexp_sint_t n) {
       sexp_make_fixnum(GetScreenHeight())); /* woah */
 }
 
+static sexp scm_func_load_image(sexp ctx, sexp self, sexp_sint_t n,
+    sexp path) {
+  sexp ptr;
+
+  A(sexp_stringp(path));
+
+  /* TODO: register the data somewhere it can be stored and added to the final
+   * executable via schemer build */
+  loaded_textures = realloc(loaded_textures,
+      sizeof(Texture2D) * (n_loaded_textures + 1));
+
+  loaded_textures[n_loaded_textures] = LoadTexture(sexp_string_data(path));
+
+  ptr = sexp_make_cpointer(ctx, SEXP_CPOINTER,
+      &loaded_textures[n_loaded_textures], NULL, 0);
+
+  n_loaded_textures++;
+
+  return ptr;
+}
+
+static sexp scm_func_show_image(sexp ctx, sexp self, sexp_sint_t n,
+    sexp image, sexp x, sexp y) {
+  A(sexp_cpointerp(image))
+  A(sexp_fixnump(x))
+  A(sexp_fixnump(y))
+
+  gui_draw_image(sexp_cpointer_value(image), 0, 0);
+
+  return SEXP_VOID;
+}
+
+static sexp scm_func_resize_image(sexp ctx, sexp self, sexp_sint_t n,
+    sexp image, sexp w, sexp h) {
+  Image img;
+
+  A(sexp_cpointerp(image))
+  A(sexp_fixnump(w))
+  A(sexp_fixnump(h))
+
+  img = LoadImageFromTexture(*(Texture2D*)sexp_cpointer_value(image));
+  ImageResize(&img, sexp_unbox_fixnum(w), sexp_unbox_fixnum(h));
+
+  *(Texture2D*)sexp_cpointer_value(image) = LoadTextureFromImage(img);
+
+  return SEXP_VOID;
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -185,6 +236,15 @@ static void define_foreign(void) {
       "get-window-size", 0, scm_func_get_window_size);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "load-image", 1, scm_func_load_image);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "show-image", 3, scm_func_show_image);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "resize-image", 3, scm_func_resize_image);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);
 }
 
@@ -210,6 +270,8 @@ void init_scheme(char *path) {
 }
 
 void end_scheme(void) {
+  free(loaded_textures);
+
   sexp_destroy_context(scm_ctx);
   scm_ctx = NULL;
 }

@@ -31,6 +31,9 @@ void gui_draw_line(int, int, int, int, int, int, int, int);
 #define gui_draw_line(x1,y1,x2,y2,r,g,b,a) \
   DrawLine(x1, y1, x2, y2, (Color){r, g, b, a})
 
+#define gui_draw_image(imgptr,x,y) \
+  DrawTexture(*((Texture2D*)(imgptr)), x, y, WHITE)
+
 #define gui_clear_background(r,g,b,a) \
   ClearBackground((Color){r, g, b, a});
 
