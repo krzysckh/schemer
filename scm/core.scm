@@ -1,5 +1,9 @@
-; TODO: don't do that and compile it into the program somehow
-(use "chibi-scheme/lib/init-7.scm")
+(use "__CORE__")
+; chibi-scheme init file -> scm2bin.scm -> chibi-scheme init file (as object)
+; -> __CORE__ defined in scm.c as include string for the file
+; -> schemer executable (linked)
+;
+; idk man
 
 (define stdout (open-output-file "/dev/stdout"))
 (define stderr (open-output-file "/dev/stderr"))

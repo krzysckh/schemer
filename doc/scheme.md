@@ -35,3 +35,23 @@ defined.
 if any draw function is called not from update-screen (before the program
 starts loading raylib) it will crash (or i'll fix it - who knows).
 
+
+TUTORIAL
+--------
+
+todo. (lmao)
+
+well, you probably want to
+```scheme
+(use "core")
+```
+because it includes some *nice* functions, and init-7.scm from chibi-scheme
+that defines important stuff.
+
+then you need to define
+```scheme
+(define update-screen
+  (lambda ()
+    (text "hello" 50 50)))
+```
+and you're good to go

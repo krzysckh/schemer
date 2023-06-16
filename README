@@ -1,6 +1,10 @@
 schemer - wrapper around raylib and chibi-scheme that brings back the fun of
 game dev (and gui stuff).
 
+dependencies:
+  - raylib
+ 
+
 main idea:
 
 create a new schemer project:

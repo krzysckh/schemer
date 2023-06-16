@@ -11,10 +11,12 @@
 extern unsigned int __third_party_unifont_15_0_06_ttf_len;
 extern unsigned char __third_party_unifont_15_0_06_ttf[];
 
+#include <chibi/sexp.h>
 /* scm.c */
 void init_scheme(char *path);
 void end_scheme(void);
 void scm_update_screen(void);
+int print_if_exception(sexp s);
 
 /* gui.c */
 void init_gui(void);
@@ -22,8 +24,6 @@ void end_gui(void);
 void run_gui(void);
 
 /* gui.c tunnel funcitons */
-void gui_draw_square(int, int, int, int, int, int, int, int);
-void gui_draw_line(int, int, int, int, int, int, int, int);
 
 #define gui_draw_square(x,y,w,h,r,g,b,a) \
   DrawRectangle(x, y, w, h, (Color){r, g, b, a})

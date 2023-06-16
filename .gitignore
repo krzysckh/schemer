@@ -4,3 +4,4 @@ vgcore*
 schemer
 unifont.c
 *.img
+*.scm.c

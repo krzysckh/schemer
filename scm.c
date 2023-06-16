@@ -18,7 +18,7 @@ static Color font_color = BLACK;
 static Texture2D *loaded_textures = NULL;
 static int n_loaded_textures = 0;
 
-static int print_if_exception(sexp s) {
+int print_if_exception(sexp s) {
   if (sexp_exceptionp(s)) {
     sexp_print_exception(scm_ctx, s,
         sexp_make_output_port(scm_ctx, stdout,
@@ -77,13 +77,15 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
   v = sexp_string_data(s);
 
   if (strcmp(v, "plot") == 0)
-    ctx_add(PLOT_SCM_PATH);
+    include_scm_plot_scm(scm_ctx);
   else if (strcmp(v, "colors") == 0)
-    ctx_add(COLORS_SCM_PATH);
+    include_scm_colors_scm(scm_ctx);
   else if (strcmp(v, "shapes") == 0)
-    ctx_add(SHAPES_SCM_PATH);
+    include_scm_shapes_scm(scm_ctx);
   else if (strcmp(v, "core") == 0)
-    ctx_add(CORE_SCM_PATH);
+    include_scm_core_scm(scm_ctx);
+  else if (strcmp(v, "__CORE__") == 0)
+    include_chibi_scheme_lib_init_7_scm(scm_ctx);
   else {
     sexp_warn(scm_ctx, "using 'use' path as a regular path", NULL);
     ctx_add(v); /* use as path */
