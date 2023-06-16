@@ -114,7 +114,7 @@ int include_" safe-fname "(sexp ctx) {
 (newline)
 
 (if (string=? t "lib")
-  (system `(cc -I. -o ,libname -c ,(string-append fname ".c"))))
-
-(display (string-append "-> " libname))
-(newline)
+  (begin
+    (system `(cc -I. -o ,libname -c ,(string-append fname ".c")))
+    (display (string-append "-> " libname))
+    (newline)))
