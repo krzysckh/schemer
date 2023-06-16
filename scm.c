@@ -252,7 +252,10 @@ void init_scheme(char *path) {
   A(scm_ctx == NULL);
 
   sexp_scheme_init();
-  scm_ctx = sexp_load_image("startup-image.img", 0, 0, SEXP_MAXIMUM_HEAP_SIZE);
+  /*scm_ctx = sexp_load_image("startup-image.img", 0, 0, SEXP_MAXIMUM_HEAP_SIZE);*/
+  scm_ctx = sexp_make_eval_context(NULL, NULL, NULL, 0, 0);
+  sexp_load_standard_env(scm_ctx, NULL, SEXP_SEVEN);
+  sexp_load_standard_ports(scm_ctx, NULL, stdin, stdout, stderr, 1);
 
   define_foreign();
 

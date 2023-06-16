@@ -1,4 +1,13 @@
-; TODO: don't be retarded
+; TODO: don't do that and compile it into the program somehow
+(use "chibi-scheme/lib/init-7.scm")
+
+(define stdout (open-output-file "/dev/stdout"))
+(define stderr (open-output-file "/dev/stderr"))
+
+(define print
+  (lambda (s)
+    (display s stdout)
+    (display "\n" stdout)))
 
 (define get-window-width
   (lambda ()

@@ -58,22 +58,25 @@
 
       (define points
         (map (lambda (x y)
-	       ; this is very cringe
-	       ; update: i already forgot why and how is it working
+               ; this is very cringe
+               ; update: i already forgot why and how is it working
                (define sx (+ plot-padding
-			     (floor (* (+ (abs x-min) x)
-				       (/ plot-width (+ (abs x-min) xs))))))
+                             (floor (* (+ (abs x-min) x)
+                                       (/ plot-width (+ (abs x-min) xs))))))
 
                (define sy (- (get-window-height)
-                            (+ plot-padding
-			       (floor (* (+ (abs y-min) y)
-					 (/ plot-height (+ (abs y-min) ys)))))))
+                             (+ plot-padding
+                                (floor (* (+ (abs y-min) y)
+                                          (/ plot-height (+ (abs y-min) ys)))))))
                (list sx sy))
-	     xv yv))
+             xv yv))
 
       (for-each (lambda (i)
+                  ;(print (list
+                           ;(list-ref points i)
+                           ;(list-ref points (+ i 1))))
                   (draw-line
-		    line-color
+                    line-color
                     (list-ref (list-ref points i) 0)
                     (list-ref (list-ref points i) 1)
                     (list-ref (list-ref points (+ i 1)) 0)

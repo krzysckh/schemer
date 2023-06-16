@@ -9,7 +9,7 @@ void init_gui(void) {
   /* TODO: define-width, define-height etc. */
   const int width = 640,
             height = 480,
-            targetfps = 60;
+            targetfps = 30;
   char *title = "schemer gui";
 
   InitWindow(width, height, title);
