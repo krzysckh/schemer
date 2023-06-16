@@ -21,11 +21,9 @@ SCMFLAGS=-A ./chibi-scheme/lib/ -q
 .PHONY: chibi
 .SUFFIXES: .scm .o
 
-all: chibi $(OFILES) startup-image.img
+all: chibi $(OFILES)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) \
 		./chibi-scheme/libchibi-scheme.a
-startup-image.img:
-	$(SCHEME) $(SCMFLAGS) -d startup-image.img
 unifont.c:
 	xxd -include ./third-party/unifont-15.0.06.ttf unifont.c
 .c.o:
@@ -39,7 +37,7 @@ chibi:
 		SEXP_USE_DL=0 \
 			   CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0"
 clean:
-	rm -rf $(TARGET) *.o *.img *.core unifont.c scm/*.scm.c scm/*.o
+	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o
 full-clean: clean
 	$(MAKE) -C chibi-scheme clean
 cloc:
