@@ -13,6 +13,8 @@ SCHEME=./chibi-scheme/chibi-scheme-static
 SCMFLAGS=-A ./chibi-scheme/lib/ -q
 #CHIBI-FFI=$(SCHEME) $(SCMFLAGS) ./chibi-scheme/tools/chibi-ffi
 
+.PHONY: chibi
+
 all: chibi $(OFILES) startup-image.img
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) \
 		./chibi-scheme/libchibi-scheme.a
