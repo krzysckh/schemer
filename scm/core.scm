@@ -51,3 +51,7 @@
            (append (flatten (car l))
                    (flatten (cdr l))))
           (else (cons (car l) (flatten (cdr l)))))))
+
+(define bool->string
+  (lambda (v)
+    (if v "#t" "#f")))

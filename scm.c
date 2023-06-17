@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <err.h>
+#include <ctype.h>
 
 #include <chibi/eval.h>
 #include <chibi/gc_heap.h>
@@ -17,6 +18,8 @@ static Color font_color = BLACK;
 
 static Texture2D *loaded_textures = NULL;
 static int n_loaded_textures = 0;
+
+static int last_pressed_key = -1;
 
 int print_if_exception(sexp s) {
   if (sexp_exceptionp(s)) {
@@ -78,6 +81,8 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
 
   if (strcmp(v, "plot") == 0)
     include_scm_plot_scm(scm_ctx);
+  else if (strcmp(v, "game") == 0)
+    include_scm_game_scm(scm_ctx);
   else if (strcmp(v, "colors") == 0)
     include_scm_colors_scm(scm_ctx);
   else if (strcmp(v, "click") == 0)
@@ -225,6 +230,31 @@ static sexp scm_func_get_mouse_pos(sexp ctx, sexp self, sexp_sint_t n) {
     sexp_make_fixnum(GetMouseY()));
 }
 
+static sexp scm_func_get_key_pressed(sexp ctx, sexp self, sexp_sint_t n) {
+  int c = GetKeyPressed();
+
+  if (c == 0 && IsKeyDown(last_pressed_key))
+    c = last_pressed_key;
+
+  if (c) {
+    last_pressed_key = c;
+    return sexp_make_character(c);
+  } else
+    return sexp_make_boolean(0);
+}
+
+static sexp scm_func_is_key_pressed(sexp ctx, sexp self, sexp_sint_t n,
+    sexp c) {
+  A(sexp_fixnump(c) || sexp_charp(c) || sexp_stringp(c));
+
+  if (sexp_fixnump(c))
+    return sexp_make_boolean(IsKeyDown(toupper(sexp_unbox_fixnum(c))));
+  else if (sexp_charp(c))
+    return sexp_make_boolean(IsKeyDown(toupper(sexp_unbox_character(c))));
+  else
+    return sexp_make_boolean(IsKeyDown(toupper(sexp_string_data(c)[0])));
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -268,6 +298,12 @@ static void define_foreign(void) {
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "get-mouse-pos", 0, scm_func_get_mouse_pos);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "get-key-pressed", 0, scm_func_get_key_pressed);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "is-key-pressed", 1, scm_func_is_key_pressed);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);

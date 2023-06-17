@@ -10,7 +10,7 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
 LDFLAGS=-L./chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
 TARGET=schemer
 OFILES=unifont.o schemer.o scm.o gui.o \
-	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o\
+	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game.o \
 	   chibi-scheme/lib/init-7.o
            # what the hell lmaoo
 
@@ -35,10 +35,10 @@ unifont.c:
 	$(SCHEME) $(SCMFLAGS) ./bin/scm2bin.scm $<
 	$(CC) $(CFLAGS) -c $<.c -o $@
 chibi:
-	$(MAKE) -C ./chibi-scheme clibs.c
-	$(MAKE) -C ./chibi-scheme -B libchibi-scheme.a chibi-scheme-static \
-		SEXP_USE_DL=0 \
-		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0"
+	#$(MAKE) -C ./chibi-scheme clibs.c
+	#$(MAKE) -C ./chibi-scheme -B libchibi-scheme.a chibi-scheme-static \
+		#SEXP_USE_DL=0 \
+		#CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0"
 clean:
 	$(MAKE) -C doc clean
 	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o
