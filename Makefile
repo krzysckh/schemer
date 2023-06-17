@@ -10,7 +10,7 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
 LDFLAGS=-L./chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
 TARGET=schemer
 OFILES=unifont.o schemer.o scm.o gui.o \
-	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o \
+	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o\
 	   chibi-scheme/lib/init-7.o
            # what the hell lmaoo
 

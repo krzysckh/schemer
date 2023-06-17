@@ -4,5 +4,6 @@
     (draw-line c x1 y1 x2 y1)
     (draw-line c x1 y1 x1 y2)
     (draw-line c x1 y2 x2 y2)
-    (draw-line c x2 y1 x2 y2)))
+    (draw-line c x2 y1 x2 y2)
+    `((,x1 ,y1) (,x2 ,y2))))
 

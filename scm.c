@@ -80,6 +80,8 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
     include_scm_plot_scm(scm_ctx);
   else if (strcmp(v, "colors") == 0)
     include_scm_colors_scm(scm_ctx);
+  else if (strcmp(v, "click") == 0)
+    include_scm_click_scm(scm_ctx);
   else if (strcmp(v, "shapes") == 0)
     include_scm_shapes_scm(scm_ctx);
   else if (strcmp(v, "core") == 0)
@@ -112,7 +114,9 @@ static sexp scm_func_draw_square(sexp ctx, sexp self, sexp_sint_t n,
     r, g, b, a
   );
 
-  return SEXP_VOID;
+  return sexp_list2(ctx,
+    sexp_list2(ctx, x, y),
+    sexp_list2(ctx, sexp_add(ctx, x, w), sexp_add(ctx, y, h)));
 }
 
 static sexp scm_func_draw_line(sexp ctx, sexp self, sexp_sint_t n,
@@ -208,6 +212,19 @@ static sexp scm_func_resize_image(sexp ctx, sexp self, sexp_sint_t n,
   return SEXP_VOID;
 }
 
+static sexp scm_func_is_mouse_pressed(sexp ctx, sexp self, sexp_sint_t n,
+    sexp button) {
+  A(sexp_fixnump(button));
+
+  return sexp_make_boolean(IsMouseButtonPressed(sexp_unbox_fixnum(button)));
+}
+
+static sexp scm_func_get_mouse_pos(sexp ctx, sexp self, sexp_sint_t n) {
+  return sexp_list2(ctx,
+    sexp_make_fixnum(GetMouseX()),
+    sexp_make_fixnum(GetMouseY()));
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -245,6 +262,12 @@ static void define_foreign(void) {
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "resize-image", 3, scm_func_resize_image);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "is-mouse-pressed", 1, scm_func_is_mouse_pressed);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "get-mouse-pos", 0, scm_func_get_mouse_pos);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);
