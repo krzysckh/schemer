@@ -5,3 +5,5 @@ schemer
 unifont.c
 *.img
 *.scm.c
+*.pdf
+*.html

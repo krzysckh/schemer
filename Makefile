@@ -25,6 +25,8 @@ SCMFLAGS=-A ./chibi-scheme/lib/ -q
 all: chibi $(OFILES)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) \
 		./chibi-scheme/libchibi-scheme.a
+doc:
+	$(MAKE) -C doc all
 unifont.c:
 	xxd -include ./third-party/unifont-15.0.06.ttf unifont.c
 .c.o:
@@ -38,6 +40,7 @@ chibi:
 		SEXP_USE_DL=0 \
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0"
 clean:
+	$(MAKE) -C doc clean
 	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o
 full-clean: clean
 	$(MAKE) -C chibi-scheme clean
