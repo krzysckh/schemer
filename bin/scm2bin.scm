@@ -101,8 +101,6 @@ int include_" safe-fname "(sexp ctx) {
   obj = sexp_c_string(ctx, fname, -1);
   e = sexp_load(ctx, obj, NULL);
 
-  puts(\"included " fname "\\n\");
-
   return print_if_exception(e);
 }
 

@@ -3,7 +3,7 @@ game dev (and gui stuff).
 
 dependencies:
   - raylib
- 
+  - GNU make
 
 main idea:
 
@@ -16,4 +16,14 @@ run debug version:
 build an executable of the game:
   $ schemer build
 
+schemer project tree (created by schemer init):
+- project-name
+  - make.scm
+  - scm/
+    - init.scm
+    - ... ; .scm files
+  - res/
+    - ... ; resources etc.
+  - build/
+    - ... ; build files (auto-generated)
 

@@ -79,19 +79,21 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
 
   v = sexp_string_data(s);
 
-  if (strcmp(v, "plot") == 0)
+  S(v, "plot")
     include_scm_plot_scm(scm_ctx);
-  else if (strcmp(v, "game") == 0)
+  else S(v, "game")
     include_scm_game_scm(scm_ctx);
-  else if (strcmp(v, "colors") == 0)
+  else S(v, "make")
+    include_scm_make_scm(scm_ctx);
+  else S(v, "colors")
     include_scm_colors_scm(scm_ctx);
-  else if (strcmp(v, "click") == 0)
+  else S(v, "click")
     include_scm_click_scm(scm_ctx);
-  else if (strcmp(v, "shapes") == 0)
+  else S(v, "shapes")
     include_scm_shapes_scm(scm_ctx);
-  else if (strcmp(v, "core") == 0)
+  else S(v, "core")
     include_scm_core_scm(scm_ctx);
-  else if (strcmp(v, "__CORE__") == 0)
+  else S(v, "__CORE__")
     include_chibi_scheme_lib_init_7_scm(scm_ctx);
   else {
     sexp_warn(scm_ctx, "using 'use' path as a regular path", NULL);
@@ -255,6 +257,20 @@ static sexp scm_func_is_key_pressed(sexp ctx, sexp self, sexp_sint_t n,
     return sexp_make_boolean(IsKeyDown(toupper(sexp_string_data(c)[0])));
 }
 
+static sexp scm_func_system(sexp ctx, sexp self, sexp_sint_t n,
+    sexp s) {
+  A(sexp_stringp(s));
+
+  return sexp_make_fixnum(system(sexp_string_data(s)));
+}
+
+static sexp scm_func_dont_init_graphics(sexp ctx, sexp self, sexp_sint_t n) {
+  extern int init_graphics;
+  init_graphics = 0;
+
+  return SEXP_VOID;
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -304,6 +320,12 @@ static void define_foreign(void) {
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "is-key-pressed", 1, scm_func_is_key_pressed);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "system", 1, scm_func_system);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "dont-init-graphics", 0, scm_func_dont_init_graphics);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);

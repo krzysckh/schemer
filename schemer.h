@@ -39,3 +39,7 @@ void run_gui(void);
 
 /* very cool assert */
 #define A(x) if (!(x)) { errx(1, "assertion failed: %s\n", #x); }
+#define AOR(x) if (!(x))
+
+#define S(a, b) if (strcmp((a), (b)) == 0)
+

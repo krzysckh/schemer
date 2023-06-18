@@ -4,9 +4,13 @@
 #include <raylib.h>
 
 Font default_font;
+int init_graphics = 1;
 
 void init_gui(void) {
   /* TODO: define-width, define-height etc. */
+  AOR(init_graphics)
+    return;
+
   const int width = 640,
             height = 480,
             targetfps = 30;
@@ -23,6 +27,8 @@ void init_gui(void) {
 }
 
 void run_gui(void) {
+  AOR(init_graphics)
+    return;
   while (!WindowShouldClose()) {
     BeginDrawing();
     {
@@ -33,5 +39,7 @@ void run_gui(void) {
 }
 
 void end_gui(void) {
+  AOR(init_graphics)
+    return;
   CloseWindow();
 }

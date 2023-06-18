@@ -7,3 +7,4 @@ unifont.c
 *.scm.c
 *.pdf
 *.html
+test

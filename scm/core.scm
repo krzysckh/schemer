@@ -55,3 +55,26 @@
 (define bool->string
   (lambda (v)
     (if v "#t" "#f")))
+
+(define ->string
+  (lambda (x)
+    (cond
+      ((list? x) (apply (lambda (s acc) (string-append (->string s) " " acc)) x))
+      ((number? x) (number->string x))
+      ((symbol? x) (symbol->string x))
+      ((boolean? x) (bool->string x))
+      ((string? x) x)
+      (else (error "unexpected type")))))
+
+(define sys
+  (lambda (l)
+    (system (->string l))))
+
+(define set-window-option
+  (lambda (s)
+    (cond
+      ((list? s) (for-each set-window-option (map ->string s)))
+      ((string? s) (cond
+                     ((string=? s "nowindow") (dont-init-graphics))
+                     (else (error (string-append "unknown option: " s)))))
+      (else (error "unexpected type")))))

@@ -4,13 +4,13 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
        -Wno-unused-parameter \
        -Wno-unused-command-line-argument \
        -Wno-implicit-function-declaration \
-       -D_POSIX_C_SOURCE=2 \
        -g
 
 LDFLAGS=-L./chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
 TARGET=schemer
 OFILES=unifont.o schemer.o scm.o gui.o \
 	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game.o \
+	   scm/make.o \
 	   chibi-scheme/lib/init-7.o
            # what the hell lmaoo
 
