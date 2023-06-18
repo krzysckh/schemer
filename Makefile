@@ -35,10 +35,10 @@ unifont.c:
 	$(SCHEME) $(SCMFLAGS) ./bin/scm2bin.scm $<
 	$(CC) $(CFLAGS) -c $<.c -o $@
 chibi:
-	$(MAKE) -C ./chibi-scheme clibs.c
-	$(MAKE) -C ./chibi-scheme -B libchibi-scheme.a chibi-scheme-static \
-		SEXP_USE_DL=0 \
-		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0"
+	#$(MAKE) -C ./chibi-scheme clibs.c
+	#$(MAKE) -C ./chibi-scheme -B libchibi-scheme.a chibi-scheme-static \
+		#SEXP_USE_DL=0 \
+		#CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0"
 clean:
 	$(MAKE) -C doc clean
 	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o

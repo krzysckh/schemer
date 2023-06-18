@@ -5,21 +5,24 @@
 ;
 ; idk man
 
-(define stdout (open-output-file "/dev/stdout"))
-(define stderr (open-output-file "/dev/stderr"))
-
 (define print
   (lambda (s)
-    (display s stdout)
-    (display "\n" stdout)))
+    (display s)
+    (display "\n")))
 
-(define get-window-width
-  (lambda ()
-    (list-ref (get-window-size) 0)))
+(define get-window-width ; return default size when window was not initialized
+  (lambda ()             ; yet
+    (define r (list-ref (get-window-size) 0))
+    (if (= 0 r)
+      640
+      r)))
 
 (define get-window-height
   (lambda ()
-    (list-ref (get-window-size) 1)))
+    (define r (list-ref (get-window-size) 1))
+    (if (= 0 r)
+      480
+      r)))
 
 (define range-stepped
   (lambda (from to step)
