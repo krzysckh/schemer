@@ -12,7 +12,6 @@
 (define fname #f)
 (define libname #f)
 
-; stackoverflow.com/questions/1175977/running-scheme-from-the-command-line
 (define file->clist
   (lambda (path)
     (call-with-input-file

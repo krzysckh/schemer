@@ -62,7 +62,8 @@
 (define ->string
   (lambda (x)
     (cond
-      ((list? x) (apply (lambda (s acc) (string-append (->string s) " " acc)) x))
+      ((list? x) (apply string-append
+                        (map (lambda (x) (string-append (->string x) " ")) x)))
       ((number? x) (number->string x))
       ((symbol? x) (symbol->string x))
       ((boolean? x) (bool->string x))
