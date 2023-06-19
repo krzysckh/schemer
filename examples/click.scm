@@ -25,6 +25,9 @@
                  (rect black 200 200 300 300)
                  (text "btn2" 250 250)))))
 
+(define on-load
+  (lambda () #t))
+
 (define update-screen
   (lambda ()
     (handle-click)))

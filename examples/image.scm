@@ -2,10 +2,13 @@
 
 (use "core")
 
-(define img (load-image "/tmp/wall.png"))
-
 (define last-window-w 0)
 (define last-window-h 0)
+(define img #f)
+
+(define on-load
+  (lambda ()
+    (set! img (load-image "/tmp/wall.png"))))
 
 (define update-screen
   (lambda ()

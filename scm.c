@@ -94,7 +94,7 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
   else S(v, "core")
     include_scm_core_scm(scm_ctx);
   else S(v, "__CORE__")
-    include_chibi_scheme_lib_init_7_scm(scm_ctx);
+    include_third_party_chibi_scheme_lib_init_7_scm(scm_ctx);
   else {
     sexp_warn(scm_ctx, "using 'use' path as a regular path", NULL);
     scm_ctx_add(v); /* use as path */

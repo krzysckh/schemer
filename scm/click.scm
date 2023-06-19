@@ -12,16 +12,6 @@
   (lambda (rect f drawf)
     (set! click-objs (append click-objs (list `(,rect ,f ,drawf))))))
 
-(define in-rect
-  (lambda (rect point)
-    (define x1 (list-ref (list-ref rect 0) 0))
-    (define y1 (list-ref (list-ref rect 0) 1))
-    (define x2 (list-ref (list-ref rect 1) 0))
-    (define y2 (list-ref (list-ref rect 1) 1))
-    (define px (list-ref point 0))
-    (define py (list-ref point 1))
-    (and (<= x1 px) (>= x2 px) (<= y1 py) (>= y2 py))))
-
 ; execute that in (update-screen)
 (define handle-click
   (lambda ()
@@ -33,7 +23,7 @@
     (if (is-mouse-pressed 0)
       (for-each
         (lambda (v)
-          (if (in-rect (list-ref v 0) (get-mouse-pos))
+          (if (point-in-rect? (get-mouse-pos) (list-ref v 0))
             ((list-ref v 1)))) ; execute the f
         click-objs)
       #f)))
