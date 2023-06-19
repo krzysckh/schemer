@@ -10,19 +10,13 @@
     (display s)
     (display "\n")))
 
-(define get-window-width ; return default size when window was not initialized
-  (lambda ()             ; yet
-    (define r (list-ref (get-window-size) 0))
-    (if (= 0 r)
-      640
-      r)))
+(define get-window-width
+  (lambda ()
+    (list-ref (get-window-size) 0)))
 
 (define get-window-height
   (lambda ()
-    (define r (list-ref (get-window-size) 1))
-    (if (= 0 r)
-      480
-      r)))
+    (list-ref (get-window-size) 1)))
 
 (define range-stepped
   (lambda (from to step)
@@ -80,5 +74,7 @@
       ((list? s) (for-each set-window-option (map ->string s)))
       ((string? s) (cond
                      ((string=? s "nowindow") (dont-init-graphics))
+                     ((string=? s "noresizable") (set-window-resizable #f))
+                     ((string=? s "resizable") (set-window-resizable #t))
                      (else (error (string-append "unknown option: " s)))))
       (else (error "unexpected type")))))

@@ -5,6 +5,8 @@
 ; it is kinda buggy, because of use of intersect? to detect colisions
 ; but it "works"
 
+(set-window-option "noresizable")
+
 (define paddle-height (/ (get-window-height) 4))
 (define paddle-width (/ (get-window-width) 20))
 

@@ -6,14 +6,18 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #include "schemer.h"
 
-static char* argv0;
+char** scheme_args = NULL;
+char* argv0        = NULL;
+int n_scheme_args  = 0;
 
 static void help(void) {
   /* TODO: weźże zrób to co w readme obiecane */
-  printf("usage: %s [-h] [init project-name] <file.scm>\n", argv0);
+  printf("usage: %s [-h] [init project-name] <file.scm> [--] [script args]\n",
+      argv0);
 
   exit(0);
 }
@@ -66,11 +70,16 @@ static void schemer_init(char *projname) {
   exit(0);
 }
 
+static void add_scheme_arg(char *s) {
+  scheme_args = realloc(scheme_args, sizeof(char*) * (n_scheme_args + 1));
+  scheme_args[n_scheme_args++] = s; /* don't copy strings, just addresses */
+}
+
 int main (int argc, char *argv[]) {
   char *path = NULL,
        *arg;
   extern char *argv0;
-  int opt;
+  int skip = 0;
 
   argv0 = args_shift(&argc, &argv);
 
@@ -78,11 +87,19 @@ int main (int argc, char *argv[]) {
     arg = args_shift(&argc, &argv);
 
     S(arg, "-h")
-      help();
+      if (!skip) help();
+      else       add_scheme_arg(arg);
     else S(arg, "init")
-      schemer_init(args_shift(&argc, &argv)); /* exits */
+      if (!skip) schemer_init(args_shift(&argc, &argv)); /* exits */
+      else       add_scheme_arg(arg);
+    else S(arg, "--")
+      if (!skip) skip = 1;
+      else       add_scheme_arg(arg);
+    else if (!path)
+      if (!skip) path = arg;
+      else       add_scheme_arg(arg);
     else
-      path = arg;
+      add_scheme_arg(arg);
   }
 
   /* run */

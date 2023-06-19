@@ -166,9 +166,13 @@ static sexp scm_func_define_font_color(sexp ctx, sexp self, sexp_sint_t n,
 }
 
 static sexp scm_func_get_window_size(sexp ctx, sexp self, sexp_sint_t n) {
+  extern int win_width, win_height;
+  int w, h;
+  w = GetScreenWidth();
+  h = GetScreenHeight();
   return sexp_list2(ctx,
-      sexp_make_fixnum(GetScreenWidth()),
-      sexp_make_fixnum(GetScreenHeight())); /* woah */
+      sexp_make_fixnum(w == 0 ? win_width : w),
+      sexp_make_fixnum(w == 0 ? win_height : h)); /* woah */
 }
 
 static sexp scm_func_load_image(sexp ctx, sexp self, sexp_sint_t n,
@@ -271,6 +275,36 @@ static sexp scm_func_dont_init_graphics(sexp ctx, sexp self, sexp_sint_t n) {
   return SEXP_VOID;
 }
 
+static sexp scm_func_set_window_size(sexp ctx, sexp self, sexp_sint_t n,
+    sexp w, sexp h) {
+  extern int win_width, win_height;
+
+  A(sexp_fixnump(w));
+  A(sexp_fixnump(h));
+
+  SetWindowSize(sexp_unbox_fixnum(w), sexp_unbox_fixnum(h));
+  win_width = sexp_unbox_fixnum(w);
+  win_height = sexp_unbox_fixnum(h);
+
+  return SEXP_VOID;
+}
+
+static sexp scm_func_set_window_resizable(sexp ctx, sexp self, sexp_sint_t n,
+    sexp b) {
+  extern int win_resizable;
+  int b_u;
+
+  A(sexp_booleanp(b));
+  win_resizable = b_u = sexp_unbox_boolean(b);
+
+  if (b_u)
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+  else
+    SetWindowState(0);
+
+  return SEXP_VOID;
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -328,7 +362,30 @@ static void define_foreign(void) {
       "dont-init-graphics", 0, scm_func_dont_init_graphics);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "set-window-size", 2, scm_func_set_window_size);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "set-window-resizable", 1, scm_func_set_window_resizable);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);
+}
+
+static void define_argv(void) {
+  extern char*  argv0;
+  extern char** scheme_args;
+  extern int    n_scheme_args;
+
+  sexp l;
+  int i;
+
+  l = sexp_list1(scm_ctx, sexp_c_string(scm_ctx, argv0, -1));
+  for (i = 0; i < n_scheme_args; ++i)
+    l = sexp_append2(scm_ctx, l,
+        sexp_list1(scm_ctx, sexp_c_string(scm_ctx, scheme_args[i], -1)));
+
+  sexp_env_define(scm_ctx, sexp_context_env(scm_ctx),
+      sexp_string_to_symbol(scm_ctx, sexp_c_string(scm_ctx, "argv", -1)), l);
 }
 
 void init_scheme(char *path) {
@@ -340,6 +397,7 @@ void init_scheme(char *path) {
   sexp_load_standard_ports(scm_ctx, NULL, stdin, stdout, stderr, 1);
 
   define_foreign();
+  define_argv();
 
   if (path)
     ctx_add(path);
