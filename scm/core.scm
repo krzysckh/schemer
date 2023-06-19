@@ -78,3 +78,9 @@
                      ((string=? s "resizable") (set-window-resizable #t))
                      (else (error (string-append "unknown option: " s)))))
       (else (error "unexpected type")))))
+
+(define set-nth ; returns a new list
+  (lambda (l n v)
+    (if (null? l) l (if (= n 0)
+                      (cons v (cdr l))
+                      (cons (car l) (set-nth (cdr l) (- n 1) v))))))

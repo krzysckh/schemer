@@ -227,7 +227,9 @@ static sexp scm_func_is_mouse_pressed(sexp ctx, sexp self, sexp_sint_t n,
     sexp button) {
   A(sexp_fixnump(button));
 
-  return sexp_make_boolean(IsMouseButtonPressed(sexp_unbox_fixnum(button)));
+  return sexp_make_boolean(
+      IsMouseButtonPressed(sexp_unbox_fixnum(button))
+      || IsMouseButtonDown(sexp_unbox_fixnum(button)));
 }
 
 static sexp scm_func_get_mouse_pos(sexp ctx, sexp self, sexp_sint_t n) {

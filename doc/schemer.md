@@ -133,9 +133,10 @@ List of extensions and their description:
   - `(plot opt)` - plots *opt*
 - *shapes*, defines functions for drawing shapes. All of them return values that
   can be then applied as a *rect* for *(on-click)*. Defines:
-  - `(rect c x1 y1 x2 y2)` - draws a not-filled rectangle of color c from
+  - `(rect c x1 y1 x2 y2)` - draws a not-filled rectangle of color *c* from
     *'(x1 y1)* to *'(x2 y2)*.
-  - `(intersect? rect1 rect2)` - checks if rect1 intersects rect2
+  - `(intersect? rect1 rect2)` - checks if *rect1* intersects *rect2*
+  - `(point-in-rect? pt rect)` - checks if point *pt* is in *rect*
 
 
 EXAMPLES

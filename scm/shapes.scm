@@ -25,10 +25,25 @@
     (define r2y (list-ref r2 1))
 
     (if (or (eq? l1x r1x)
-                   (eq? l1y r1y)
-                   (eq? r2x l2x)
-                   (eq? l2y r2y)
-                   (> l1x r2x)
-                   (> l2x r1x)
-                   (> l1y r2y)
-                   (> l2y r1y)) #f #t)))
+            (eq? l1y r1y)
+            (eq? r2x l2x)
+            (eq? l2y r2y)
+            (> l1x r2x)
+            (> l2x r1x)
+            (> l1y r2y)
+            (> l2y r1y)) #f #t)))
+
+(define point-in-rect?
+  (lambda (pt rect)
+    (define ptx (list-ref pt 0))
+    (define pty (list-ref pt 1))
+
+    (define rx1 (list-ref (list-ref rect 0) 0))
+    (define ry1 (list-ref (list-ref rect 0) 1))
+    (define rx2 (list-ref (list-ref rect 1) 0))
+    (define ry2 (list-ref (list-ref rect 1) 1))
+
+    (and (>= ptx rx1)
+         (>= pty ry1)
+         (<= ptx rx2)
+         (<= pty ry2))))
