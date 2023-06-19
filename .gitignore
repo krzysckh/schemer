@@ -7,4 +7,5 @@ unifont.c
 *.scm.c
 *.pdf
 *.html
+.chibi-compiled
 test
