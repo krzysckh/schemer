@@ -47,7 +47,7 @@ static void list2rgba(sexp ctx, sexp l, int *r, int *g, int *b, int *a) {
 
 /* TODO: keep track of added files. don't evaluate files that have been already
  * evaluated */
-static void ctx_add(const char *s) {
+void scm_ctx_add(const char *s) {
   sexp obj, e;
 
   obj = sexp_c_string(scm_ctx, s, -1);
@@ -97,7 +97,7 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
     include_chibi_scheme_lib_init_7_scm(scm_ctx);
   else {
     sexp_warn(scm_ctx, "using 'use' path as a regular path", NULL);
-    ctx_add(v); /* use as path */
+    scm_ctx_add(v); /* use as path */
   }
 
   return SEXP_VOID;
@@ -388,6 +388,13 @@ static void define_argv(void) {
       sexp_string_to_symbol(scm_ctx, sexp_c_string(scm_ctx, "argv", -1)), l);
 }
 
+void scm_run_onload(void) {
+  sexp s;
+
+  s = sexp_eval_string(scm_ctx, "(on-load)", -1, NULL);
+  print_if_exception(s);
+}
+
 void init_scheme(char *path) {
   A(scm_ctx == NULL);
 
@@ -400,12 +407,13 @@ void init_scheme(char *path) {
   define_argv();
 
   if (path)
-    ctx_add(path);
+    scm_ctx_add(path);
   else {
     /* this is so cool */
     sexp_eval_string(
       scm_ctx,
-      "(define update-screen (lambda () (text \"no base path given\" 0 0)))",
+      "(define update-screen (lambda () \
+      (text \"no base path given or update-screen not defined\" 0 0)))",
       -1,
       NULL
     );

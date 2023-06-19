@@ -2,8 +2,8 @@ PANDOC=pandoc
 
 .SUFFIXES: .md .html .md .pdf
 
-HTMLFILES=scheme.html
-PDFFILES=scheme.pdf
+HTMLFILES=schemer.html
+PDFFILES=schemer.pdf
 
 all: $(HTMLFILES) $(PDFFILES)
 

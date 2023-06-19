@@ -16,6 +16,8 @@ extern unsigned char __third_party_unifont_15_0_06_ttf[];
 void init_scheme(char *path);
 void end_scheme(void);
 void scm_update_screen(void);
+void scm_ctx_add(const char *s);
+void scm_run_onload(void);
 int print_if_exception(sexp s);
 
 /* gui.c */

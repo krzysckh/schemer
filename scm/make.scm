@@ -1,6 +1,5 @@
 (use "core")
 
-(set-window-option "nowindow")
 (define make-resources '())
 
 ; name is the name by which the loaded resource will be known as
@@ -14,10 +13,25 @@
     (with-output-to-file "build/schemer-build"
                          (lambda ()
                            (for-each (lambda (s)
-                                       (print (string-append (car s)
-                                                             "\t"
-                                                             (car (cdr s)))))
+                                       (print (string-append
+                                                (car s)
+                                                "\t"
+                                                (->string (list-ref s 1)))))
                                      make-resources)))))
+
+(define ->symbol
+  (lambda (x)
+    (cond
+      ((string? x) (string->symbol x))
+      ((symbol? x) x)
+      (else (error "unexpected type")))))
+
+(define load-resources
+  (lambda ()
+    (for-each (lambda (x)
+                (let ((s (->symbol (list-ref x 1))))
+                  (eval `(define ,s (load-image ,(car x))))))
+              make-resources)))
 
 (define make
   (lambda ()

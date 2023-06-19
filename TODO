@@ -8,12 +8,9 @@ near future
 [ ] "ui" extension
 [ ] (load-font), (set-font)
 [ ] circles??
-[ ] setting the window options from scheme
-[ ] audio? (nah...)
 
 future
 
-[ ] cool ass cli
 [ ] building projects
 [ ] less dependent on raylib
 [ ] repl
@@ -21,3 +18,4 @@ future
 far future
 
 [ ] plan9 compatibility
+[ ] audio? (nah...)

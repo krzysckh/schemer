@@ -27,6 +27,8 @@ void init_gui(void) {
     SetWindowState(FLAG_WINDOW_RESIZABLE);
 
   SetWindowMinSize(320, 240);
+
+  scm_run_onload();
 }
 
 void run_gui(void) {
