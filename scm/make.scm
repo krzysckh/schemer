@@ -6,6 +6,7 @@
 ; in the rest of the source
 (define define-resource
   (lambda (path name)
+    (compiler-add-resource path)
     (set! make-resources (append make-resources (list `(,path ,name))))))
 
 (define write-schemer-build-files

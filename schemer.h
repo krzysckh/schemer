@@ -1,8 +1,3 @@
-#define PLOT_SCM_PATH   "scm/plot.scm"
-#define COLORS_SCM_PATH "scm/colors.scm"
-#define SHAPES_SCM_PATH "scm/shapes.scm"
-#define CORE_SCM_PATH   "scm/core.scm"
-
 /* unifont.c */
 #define UNIFONT_FONT_SIZE 20
 #define UNIFONT     __third_party_unifont_15_0_06_ttf
@@ -12,6 +7,11 @@ extern unsigned int __third_party_unifont_15_0_06_ttf_len;
 extern unsigned char __third_party_unifont_15_0_06_ttf[];
 
 #include <chibi/sexp.h>
+/* compiler.c */
+void schemer_add_resource(char *path);
+void schemer_compile(void);
+void schemer_free_resources(void);
+
 /* scm.c */
 void init_scheme(char *path);
 void end_scheme(void);
@@ -19,6 +19,7 @@ void scm_update_screen(void);
 void scm_ctx_add(const char *s);
 void scm_run_onload(void);
 int print_if_exception(sexp s);
+void any_to_c(char *path);
 
 /* gui.c */
 void init_gui(void);

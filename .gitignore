@@ -8,4 +8,6 @@ unifont.c
 *.pdf
 *.html
 .chibi-compiled
+chibi-scheme.c
 test
+any2c

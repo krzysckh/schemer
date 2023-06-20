@@ -307,6 +307,15 @@ static sexp scm_func_set_window_resizable(sexp ctx, sexp self, sexp_sint_t n,
   return SEXP_VOID;
 }
 
+static sexp scm_func_compiler_add_resource(sexp ctx, sexp self, sexp_sint_t n,
+    sexp path) {
+  A(sexp_stringp(path));
+
+  schemer_add_resource(sexp_string_data(path));
+
+  return SEXP_VOID;
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -368,6 +377,9 @@ static void define_foreign(void) {
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "set-window-resizable", 1, scm_func_set_window_resizable);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "compiler-add-resource", 1, scm_func_compiler_add_resource);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);

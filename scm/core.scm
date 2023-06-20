@@ -84,3 +84,32 @@
     (if (null? l) l (if (= n 0)
                       (cons v (cdr l))
                       (cons (car l) (set-nth (cdr l) (- n 1) v))))))
+
+(define file->char-list
+  (lambda (path)
+    (call-with-input-file
+      path
+      (lambda (input-port)
+        (let loop ((x (read-char input-port)))
+          (cond
+            ((eof-object? x) '())
+            (#t (begin
+                  (cons x (loop (read-char input-port)))))))))))
+
+(define string-replace-char
+  (lambda (s c1 c2)
+    (define normalize
+      (lambda (c)
+        (cond
+          ((char? c) (char->integer c))
+          ((integer? c) c)
+          ((string? c) (char->integer (car (string->list c)))))))
+
+    (define n-c1 (normalize c1))
+    (define n-c2 (normalize c2))
+
+    (apply string
+           (map integer->char
+                (map (lambda (x) (if (eq? x n-c1) n-c2 x))
+                     (map char->integer (string->list s))))))) ; wow
+

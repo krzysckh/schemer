@@ -137,4 +137,6 @@ int main (int argc, char *argv[]) {
 
   end_gui();
   end_scheme();
+
+  schemer_free_resources();
 }

@@ -8,10 +8,11 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
 
 LDFLAGS=-L./third-party/chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
 TARGET=schemer
-OFILES=unifont.o schemer.o scm.o gui.o \
+OFILES=unifont.o schemer.o scm.o gui.o compiler.o \
 	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game.o \
 	   scm/make.o \
-	   third-party/chibi-scheme/lib/init-7.o
+	   third-party/chibi-scheme/lib/init-7.o \
+	   chibi-scheme.o
 # what the hell lmaoo
 
 SCHEME=LD_LIBRARY_PATH="./third-party/chibi-scheme/:" \
@@ -23,17 +24,21 @@ SCMFLAGS=-A ./third-party/chibi-scheme/lib/ -q
 .PHONY: chibi
 .SUFFIXES: .scm .o
 
-all: chibi $(OFILES)
+all: any2c chibi $(OFILES)
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) \
 		./third-party/chibi-scheme/libchibi-scheme.a
+any2c: any2c.c compiler.o
+	$(CC) $(CFLAGS) $(LDFLAGS) compiler.o any2c.c -o any2c
 doc:
 	$(MAKE) -C doc all
 unifont.c:
 	xxd -include ./third-party/unifont-15.0.06.ttf unifont.c
+chibi-scheme.c: chibi
+	xxd -include ./third-party/chibi-scheme/libchibi-scheme.a chibi-scheme.c
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 .scm.o:
-	$(SCHEME) $(SCMFLAGS) ./bin/scm2bin.scm $<
+	./any2c $<
 	$(CC) $(CFLAGS) -c $<.c -o $@
 chibi:
 	[ -e .chibi-compiled ] || $(MAKE) -C ./third-party/chibi-scheme clibs.c lib/chibi/ast.so
@@ -42,7 +47,7 @@ chibi:
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0" && touch .chibi-compiled)
 clean:
 	$(MAKE) -C doc clean
-	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o
+	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o chibi-scheme.c any2c
 full-clean: clean
 	rm -f .chibi-compiled
 	$(MAKE) -C ./third-party/chibi-scheme clean
