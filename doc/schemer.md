@@ -176,7 +176,7 @@ For example, if *make.scm* defines:
 (make)
 ```
 
-and *init.scm* defines:
+and *scm/init.scm* defines:
 ```scheme
 (define img #f)
 

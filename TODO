@@ -4,14 +4,13 @@ near future
 [ ] "2dgame" extension
 [ ] "mapmaker" extension/program/function??
 [ ] better "plot"
-[ ] keyboard input
 [ ] "ui" extension
 [ ] (load-font), (set-font)
 [ ] circles??
+[ ] no need for chibi-scheme's headers to $ schemer build
 
 future
 
-[ ] building projects
 [ ] less dependent on raylib
 [ ] repl
 

@@ -10,7 +10,7 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
 
 LDFLAGS=-L./third-party/chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
 
-OFILES=scm.o unifont.o gui.o compiler.o \
+OFILES=scm.o canada1500.o gui.o compiler.o \
 	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game.o \
 	   scm/make.o \
 	   third-party/chibi-scheme/lib/init-7.o
@@ -44,8 +44,8 @@ any2c: any2c.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DANY2C compiler.c any2c.c -o any2c
 doc:
 	$(MAKE) -C doc all
-unifont.c:
-	xxd -include ./third-party/unifont-15.0.06.ttf unifont.c
+canada1500.c:
+	xxd -include ./third-party/canada1500.ttf canada1500.c
 res-handler.c:
 	echo "#include <chibi/eval.h>" > res-handler.c
 	echo "int is_compiled_in(char *path) { return 0; }" >> res-handler.c
@@ -64,7 +64,7 @@ chibi:
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0" && touch .chibi-compiled)
 clean:
 	$(MAKE) -C doc clean
-	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a create-chibi-ofiles
+	rm -rf $(TARGET) *.o *.core canada1500.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a create-chibi-ofiles
 	rm -rf /tmp/schemer-tmp
 full-clean: clean
 	rm -f .chibi-compiled

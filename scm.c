@@ -109,7 +109,7 @@ static sexp scm_func_text(sexp ctx, sexp self, sexp_sint_t n,
 
   DrawTextEx(default_font, sexp_string_data(text),
       (Vector2){(int)sexp_unbox_fixnum(x), (int)sexp_unbox_fixnum(y)},
-      UNIFONT_FONT_SIZE, 0.f, font_color);
+      C1500FONT_FONT_SIZE, 0.f, font_color);
 
   return SEXP_VOID;
 }

@@ -2,7 +2,7 @@
 *.core
 vgcore*
 schemer
-unifont.c
+canada1500.c
 *.img
 *.scm.c
 *.pdf

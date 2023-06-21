@@ -1,12 +1,11 @@
 #include <chibi/sexp.h>
 
-/* unifont.c */
-#define UNIFONT_FONT_SIZE 20
-#define UNIFONT     __third_party_unifont_15_0_06_ttf
-#define UNIFONT_LEN __third_party_unifont_15_0_06_ttf_len
+#define C1500FONT_FONT_SIZE 20
+#define C1500FONT     __third_party_canada1500_ttf
+#define C1500FONT_LEN __third_party_canada1500_ttf_len
 
-extern unsigned int __third_party_unifont_15_0_06_ttf_len;
-extern unsigned char __third_party_unifont_15_0_06_ttf[];
+extern unsigned int C1500FONT_LEN;
+extern unsigned char C1500FONT[];
 
 /* res-handler.c || custom res-handler.c from schemer build */
 int is_compiled_in(char *path);

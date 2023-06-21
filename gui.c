@@ -20,8 +20,8 @@ void init_gui(void) {
   InitWindow(win_width, win_height, title);
   SetTargetFPS(targetfps);
 
-  default_font = LoadFontFromMemory(".ttf", UNIFONT, UNIFONT_LEN,
-      UNIFONT_FONT_SIZE, NULL, 0);
+  default_font = LoadFontFromMemory(".ttf", C1500FONT, C1500FONT_LEN,
+      C1500FONT_FONT_SIZE, NULL, 0);
 
   if (win_resizable)
     SetWindowState(FLAG_WINDOW_RESIZABLE);
