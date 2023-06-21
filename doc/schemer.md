@@ -148,6 +148,55 @@ List of extensions and their description:
 EXAMPLES
 --------
 
-See *examples/*.
+- See *examples/*.
+- [paint](https://github.com/krzysckh/paint)
+
+THE "COMPILER"
+--------------
+
+The executable built will be big and clumsy, because *compiler.c* is **not** a
+compiler, but more of a bundler. It bundles all defined files in one executable.
+It does it by compiling every resource (images, \*.scm, etc.) to a *.c* file,
+that contains a list of bytes of the file, and some getters. It **IS** a braindead
+approach, but i don't like having dynamic dependencies scattered all over my
+system, so that was my idea.
+
+All resources and sources should be defined in *make.scm*, using
+*(define-resource)*. The bundler will then know what files to bundle (lmao),
+and on runtime, when files are accessed through schemers' builtin functions
+with given filenames, it will **not** read them from disk, but load them through
+the getters (when compiled).
+
+For example, if *make.scm* defines:
+```scheme
+(use "make")
+(define-resource "scm/init.scm")
+(define-resource "res/image.png")
+
+(make)
+```
+
+and *init.scm* defines:
+```scheme
+(define img #f)
+
+(define on-load
+  (lambda ()
+    (set! img (load-image "res/image.png"))))
+
+(define update-screen
+  (lambda ()
+    (show-image img 0 0)))
+```
+
+After running:
+```sh
+$ schemer build
+$ ./a.out
+```
+
+*res/image.png* will be copiled to *build/resources/image.png.c*, and then
+built into *a.out*, and *then* accessed not from the disk, but using a getter
+defined in the *.c* file.
 
 </div>
