@@ -12,7 +12,7 @@ LDFLAGS=-L./third-party/chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
 
 OFILES=scm.o canada1500.o gui.o compiler.o \
 	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game.o \
-	   scm/make.o \
+	   scm/make.o scm/ui.o \
 	   third-party/chibi-scheme/lib/init-7.o
 # what the hell lmaoo
 
