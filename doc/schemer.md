@@ -99,8 +99,7 @@ extension - you would write `(use "colors")`).
 
 List of extensions and their description:
 - *colors*, defines colors using kebab-case (look in *scm/colors.scm* for a list)
-- *click*, defines functions that can easily register clicks for ui elements.
-  It defines:
+- *click*, defines functions that can easily register clicks for ui elements:
   - `(on-click rect f drawf)` - where *rect* is a list *'((x1 y1) (x2 y1))*
     containing the rectangle that is the click area, *f* is a function
     that needs to be called when the *rect* is clicked, and *drawf* is a function
@@ -126,18 +125,25 @@ List of extensions and their description:
     - *"noresizable"* - disallow resizing the window
     - *"resizable"* - allow resizing the window
     - list of opts
-- *plot*, defines functions for drawing plots, and defines:
+  - `(set-nth l n v)` - returns *l* with value on position *n* changed to *v*
+  - `(file->char-list path)` - returns file *path* as a list of characters
+  - `(string-replace-char s c1 c2)` - replace *c1* with *c2* in *s*
+- *plot*, defines functions, and variables for drawing plots:
   - `default-plot-options` - default list of options passed to *(plot)*
   - `(plot-set-xy opt v)` - sets x and y axis for opt *opt*, where v =
      *'((x-values) (y-values))*, e.g. *'((0 1 2 3 4 5) (0 1 2 3 4 5)))* (y = x)
   - `(plot opt)` - plots *opt*
 - *shapes*, defines functions for drawing shapes. All of them return values that
-  can be then applied as a *rect* for *(on-click)*. Defines:
+  can be then applied as a *rect* for *(on-click)*:
   - `(rect c x1 y1 x2 y2)` - draws a not-filled rectangle of color *c* from
     *'(x1 y1)* to *'(x2 y2)*.
   - `(intersect? rect1 rect2)` - checks if *rect1* intersects *rect2*
   - `(point-in-rect? pt rect)` - checks if point *pt* is in *rect*
-
+- *make*, defines functions intended to be used in *make.scm*
+  - `(define-resource path)` - adds *path* to the bundle.
+  - `(define-source path)` - same as above
+  - `(set-executable-name s)` - sets the executable name for *schemer build*
+  - `(make)` - write required flies. Always call it at the bottom of *make.scm*
 
 EXAMPLES
 --------

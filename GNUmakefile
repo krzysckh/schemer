@@ -30,12 +30,16 @@ all: any2c chibi $(OFILES) schemer.o res-handler.o
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) schemer.o res-handler.o \
 		./third-party/chibi-scheme/libchibi-scheme.a
 	$(MAKE) libschemer.a
-libschemer.a:
+libschemer.a: create-chibi-ofiles
 	mkdir -p /tmp/schemer-tmp/ || false
 	rm -f /tmp/schemer-tmp/*
-	./create-chibi-ofiles
+	sh ./create-chibi-ofiles
 	ar r libschemer.a /tmp/schemer-tmp/*.o $(OFILES)
 	rm -rf /tmp/schemer-tmp
+create-chibi-ofiles:
+	echo "set -xe ; SCHEMER_BUILD_DIR=`pwd`" > create-chibi-ofiles
+	echo "cd /tmp/schemer-tmp/" >> create-chibi-ofiles
+	echo 'ar x "$$SCHEMER_BUILD_DIR/third-party/chibi-scheme/libchibi-scheme.a"' >> create-chibi-ofiles
 any2c: any2c.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DANY2C compiler.c any2c.c -o any2c
 doc:
@@ -60,7 +64,7 @@ chibi:
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0" && touch .chibi-compiled)
 clean:
 	$(MAKE) -C doc clean
-	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a
+	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a create-chibi-ofiles
 	rm -rf /tmp/schemer-tmp
 full-clean: clean
 	rm -f .chibi-compiled

@@ -3,12 +3,12 @@
 (define make-resources '())
 (define executable-name "a.out")
 
-; name is the name by which the loaded resource will be known as
-; in the rest of the source
 (define define-resource
-  (lambda (path name)
+  (lambda (path)
     (compiler-add-resource path)
-    (set! make-resources (append make-resources (list `(,path ,name))))))
+    (set! make-resources (append make-resources (list path)))))
+
+(define define-source define-resource)
 
 (define set-executable-name
   (lambda (s)
@@ -20,13 +20,6 @@
       ((string? x) (string->symbol x))
       ((symbol? x) x)
       (else (error "->symbol: unexpected type")))))
-
-(define load-resources
-  (lambda ()
-    (for-each (lambda (x)
-                (let ((s (->symbol (list-ref x 1))))
-                  (eval `(define ,s (load-image ,(car x))))))
-              make-resources)))
 
 (define filename-to-cfun
   (lambda (s)
@@ -46,7 +39,7 @@
             (print (string-append "char *get_contents_of_"
                                   (filename-to-cfun s)
                                   "();")))
-          (map (lambda (x) (car x)) make-resources))))))
+          make-resources)))))
 
 (define write-resource-handler ; this is a mess :^)
   (lambda ()
@@ -63,7 +56,7 @@ int is_compiled_in(char *path) {\n")
             (display
               (string-append
                 "if (strcmp(path, \"" s "\") == 0) return 1;\n")))
-          (map (lambda (x) (car x)) make-resources))
+          make-resources)
         (if (> (length make-resources) 0) (display "else "))
         (display "return 0; }\n")
         (display "char *get_contents_of(char *path) {\n")
@@ -73,7 +66,7 @@ int is_compiled_in(char *path) {\n")
               (string-append
                 "if (strcmp(path, \"" s "\") == 0) { return get_contents_of_"
                 (filename-to-cfun s) "();}\n")))
-          (map (lambda (x) (car x)) make-resources))
+          make-resources)
         (if (> (length make-resources) 0) (display "else "))
         (display "return NULL; }\n")
         (display "int get_length_of(char *path) {\n")
@@ -83,7 +76,7 @@ int is_compiled_in(char *path) {\n")
               (string-append
                 "if (strcmp(path, \"" s "\") == 0) return get_length_of_"
                 (filename-to-cfun s) "();\n")))
-          (map (lambda (x) (car x)) make-resources))
+          make-resources)
         (if (> (length make-resources) 0) (display "else "))
         (display "return -1; }\n")
         (display "void compiled_include(sexp ctx, char *path) {\n")
@@ -93,7 +86,7 @@ int is_compiled_in(char *path) {\n")
               (string-append
                 "if (strcmp(path, \"" s "\") == 0) include_"
                 (filename-to-cfun s) "(ctx);\n")))
-          (map (lambda (x) (car x)) make-resources))
+          make-resources)
         (display "}\n")))))
 
 (define write-main

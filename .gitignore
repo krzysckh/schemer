@@ -11,3 +11,6 @@ unifont.c
 chibi-scheme.c
 test
 any2c
+*.a
+create-chibi-ofiles
+res-handler.c
