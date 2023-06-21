@@ -4,7 +4,12 @@ dependencies:
   - raylib
   - GNU make
 
-main idea:
+build:
+  $ make
+  $ make doc
+  # make install
+
+(remember to use GNU make on non-gnu systems)
 
 create a new schemer project:
   $ schemer init
@@ -14,6 +19,3 @@ run without building:
 
 build an executable:
   $ schemer build
-
-read:
-  doc/
