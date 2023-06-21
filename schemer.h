@@ -1,3 +1,5 @@
+#include <chibi/sexp.h>
+
 /* unifont.c */
 #define UNIFONT_FONT_SIZE 20
 #define UNIFONT     __third_party_unifont_15_0_06_ttf
@@ -6,20 +8,27 @@
 extern unsigned int __third_party_unifont_15_0_06_ttf_len;
 extern unsigned char __third_party_unifont_15_0_06_ttf[];
 
-#include <chibi/sexp.h>
+/* res-handler.c || custom res-handler.c from schemer build */
+int is_compiled_in(char *path);
+void compiled_include(sexp ctx, char *s);
+char *get_contents_of(char *path);
+int get_length_of(char *path);
+
 /* compiler.c */
 void schemer_add_resource(char *path);
 void schemer_compile(void);
 void schemer_free_resources(void);
+void filename_to_cfun(char *path);
 
 /* scm.c */
 void init_scheme(char *path);
 void end_scheme(void);
 void scm_update_screen(void);
-void scm_ctx_add(const char *s);
+void scm_ctx_add(char *s);
 void scm_run_onload(void);
 int print_if_exception(sexp s);
-void any_to_c(char *path);
+void any_to_c(char *path, char *opath);
+void add_scheme_arg(char *s);
 
 /* gui.c */
 void init_gui(void);

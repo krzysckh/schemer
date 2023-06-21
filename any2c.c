@@ -8,7 +8,7 @@ int main (int argc, char *argv[]) {
   A(argv[1]);
   A(access(argv[1], F_OK) != -1);
 
-  any_to_c(argv[1]);
+  any_to_c(argv[1], NULL);
 
   return 0;
 }

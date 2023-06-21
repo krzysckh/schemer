@@ -11,7 +11,7 @@
 
 extern Font default_font;
 
-static sexp scm_ctx = NULL;
+sexp scm_ctx = NULL;
 
 static Color background_color = WHITE;
 static Color font_color = BLACK;
@@ -20,6 +20,11 @@ static Texture2D *loaded_textures = NULL;
 static int n_loaded_textures = 0;
 
 static int last_pressed_key = -1;
+
+static char** scheme_args = NULL;
+static int n_scheme_args  = 0;
+
+extern int is_compiled;
 
 int print_if_exception(sexp s) {
   if (sexp_exceptionp(s)) {
@@ -31,6 +36,12 @@ int print_if_exception(sexp s) {
 
   return 0;
 }
+
+void add_scheme_arg(char *s) {
+  scheme_args = realloc(scheme_args, sizeof(char*) * (n_scheme_args + 1));
+  scheme_args[n_scheme_args++] = s; /* don't copy strings, just addresses */
+}
+
 
 static void list2rgba(sexp ctx, sexp l, int *r, int *g, int *b, int *a) {
   sexp vec = sexp_list_to_vector(ctx, l);
@@ -45,13 +56,45 @@ static void list2rgba(sexp ctx, sexp l, int *r, int *g, int *b, int *a) {
   *a = sexp_vector_length(vec) == 4 ? sexp_unbox_fixnum(data[3]) : 255;
 }
 
+static char *compiled_path_to_filename(char *path) {
+  char *c, *tnam, *nam;
+  int sz;
+  FILE *f;
+
+  c = get_contents_of(path);
+  if (c) {
+    sz = get_length_of(path);
+    tnam = tmpnam(NULL);
+    nam = malloc(strlen(tnam) + 8);
+    snprintf(nam, strlen(tnam) + 8, "%s%s", tnam, GetFileExtension(path));
+    /* a hack, because FUCKING raylib expects a filename with extension */
+    f = fopen(nam, "wb");
+    fwrite(c, 1, sz, f);
+    free(c);
+    fclose(f);
+
+    return nam;
+  }
+
+  warnx("schemer warning: loading file %s in compiled mode "
+      "(maybe you forgot to (define-resource) it?)", path);
+  return NULL;
+}
+
 /* TODO: keep track of added files. don't evaluate files that have been already
  * evaluated */
-void scm_ctx_add(const char *s) {
+void scm_ctx_add(char *s) {
   sexp obj, e;
+  /* if schemer build */
+  char *p;
 
-  obj = sexp_c_string(scm_ctx, s, -1);
-  e = sexp_load(scm_ctx, obj, NULL);
+  if (is_compiled && is_compiled_in(s)) {
+    compiled_include(scm_ctx, s);
+    return;
+  } else {
+    obj = sexp_c_string(scm_ctx, s, -1);
+    e = sexp_load(scm_ctx, obj, NULL);
+  }
 
   if (print_if_exception(e))
     exit(1);
@@ -178,21 +221,30 @@ static sexp scm_func_get_window_size(sexp ctx, sexp self, sexp_sint_t n) {
 static sexp scm_func_load_image(sexp ctx, sexp self, sexp_sint_t n,
     sexp path) {
   sexp ptr;
-
+  char *ps, *p;
   A(sexp_stringp(path));
 
-  /* TODO: register the data somewhere it can be stored and added to the final
-   * executable via schemer build */
+  ps = strdup(sexp_string_data(path));
+
+  if (is_compiled && is_compiled_in(ps)) {
+    p = compiled_path_to_filename(ps);
+    if (p) {
+      free(ps);
+      ps = p;
+    }
+  }
+
   loaded_textures = realloc(loaded_textures,
       sizeof(Texture2D) * (n_loaded_textures + 1));
 
-  loaded_textures[n_loaded_textures] = LoadTexture(sexp_string_data(path));
+  loaded_textures[n_loaded_textures] = LoadTexture(ps);
 
   ptr = sexp_make_cpointer(ctx, SEXP_CPOINTER,
       &loaded_textures[n_loaded_textures], NULL, 0);
 
   n_loaded_textures++;
 
+  free(ps);
   return ptr;
 }
 

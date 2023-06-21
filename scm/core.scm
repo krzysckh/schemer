@@ -62,7 +62,7 @@
       ((symbol? x) (symbol->string x))
       ((boolean? x) (bool->string x))
       ((string? x) x)
-      (else (error "unexpected type")))))
+      (else (error "->string: unexpected type")))))
 
 (define sys
   (lambda (l)
@@ -77,7 +77,7 @@
                      ((string=? s "noresizable") (set-window-resizable #f))
                      ((string=? s "resizable") (set-window-resizable #t))
                      (else (error (string-append "unknown option: " s)))))
-      (else (error "unexpected type")))))
+      (else (error "set-window-option: unexpected type")))))
 
 (define set-nth ; returns a new list
   (lambda (l n v)

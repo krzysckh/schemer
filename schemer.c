@@ -10,9 +10,8 @@
 
 #include "schemer.h"
 
-char** scheme_args = NULL;
-char* argv0        = NULL;
-int n_scheme_args  = 0;
+char* argv0     = NULL;
+int is_compiled = 0;
 
 static void help(void) {
   /* TODO: weźże zrób to co w readme obiecane */
@@ -88,12 +87,9 @@ static void schemer_run(void) {
 }
 
 static void schemer_build(void) {
-  errx(1, "build not implemented");
-}
+  schemer_compile();
 
-static void add_scheme_arg(char *s) {
-  scheme_args = realloc(scheme_args, sizeof(char*) * (n_scheme_args + 1));
-  scheme_args[n_scheme_args++] = s; /* don't copy strings, just addresses */
+  exit(0);
 }
 
 int main (int argc, char *argv[]) {

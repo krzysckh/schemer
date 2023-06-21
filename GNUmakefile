@@ -1,5 +1,7 @@
 CC=clang
-CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
+TARGET=schemer
+PREFIX=/usr/local
+CFLAGS=-Wall -Wextra -std=c99 -pedantic \
        -I. -I./third-party/chibi-scheme/include -I/usr/local/include \
        -Wno-unused-parameter \
        -Wno-unused-command-line-argument \
@@ -7,12 +9,11 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
        -g
 
 LDFLAGS=-L./third-party/chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
-TARGET=schemer
-OFILES=unifont.o schemer.o scm.o gui.o compiler.o \
+
+OFILES=scm.o unifont.o gui.o compiler.o \
 	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game.o \
 	   scm/make.o \
-	   third-party/chibi-scheme/lib/init-7.o \
-	   chibi-scheme.o
+	   third-party/chibi-scheme/lib/init-7.o
 # what the hell lmaoo
 
 SCHEME=LD_LIBRARY_PATH="./third-party/chibi-scheme/:" \
@@ -24,17 +25,29 @@ SCMFLAGS=-A ./third-party/chibi-scheme/lib/ -q
 .PHONY: chibi
 .SUFFIXES: .scm .o
 
-all: any2c chibi $(OFILES)
-	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) \
+all: any2c chibi $(OFILES) schemer.o res-handler.o
+	rm -f libschemer.a
+	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) schemer.o res-handler.o \
 		./third-party/chibi-scheme/libchibi-scheme.a
-any2c: any2c.c compiler.o
-	$(CC) $(CFLAGS) $(LDFLAGS) compiler.o any2c.c -o any2c
+	$(MAKE) libschemer.a
+libschemer.a:
+	mkdir -p /tmp/schemer-tmp/ || false
+	rm -f /tmp/schemer-tmp/*
+	ar --output /tmp/schemer-tmp/ x ./third-party/chibi-scheme/libchibi-scheme.a
+	ar -r libschemer.a /tmp/schemer-tmp/*.o $(OFILES)
+	rm -rf /tmp/schemer-tmp
+any2c: any2c.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -DANY2C compiler.c any2c.c -o any2c
 doc:
 	$(MAKE) -C doc all
 unifont.c:
 	xxd -include ./third-party/unifont-15.0.06.ttf unifont.c
-chibi-scheme.c: chibi
-	xxd -include ./third-party/chibi-scheme/libchibi-scheme.a chibi-scheme.c
+res-handler.c:
+	echo "#include <chibi/eval.h>" > res-handler.c
+	echo "int is_compiled_in(char *path) { return 0; }" >> res-handler.c
+	echo "void compiled_include(sexp ctx, char *s) { return; }" >> res-handler.c
+	echo "char *get_contents_of(char *path) { return NULL; }" >> res-handler.c
+	echo "int get_length_of(char *path) { return -1; }  " >> res-handler.c
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 .scm.o:
@@ -47,14 +60,16 @@ chibi:
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0" && touch .chibi-compiled)
 clean:
 	$(MAKE) -C doc clean
-	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o chibi-scheme.c any2c
+	rm -rf $(TARGET) *.o *.core unifont.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a
+	rm -rf /tmp/schemer-tmp
 full-clean: clean
 	rm -f .chibi-compiled
 	$(MAKE) -C ./third-party/chibi-scheme clean
 cloc:
 	cloc `ls | grep -v third-party`
-install: all
-	mkdir -p /usr/local/bin
-	cp $(TARGET) /usr/local/bin/
+install: all libschemer.a
+	mkdir -p $(PREFIX)/bin
+	cp $(TARGET) $(PREFIX)/bin/
+	cp libschemer.a $(PREFIX)/lib/
 uninstall:
-	rm -f /usr/local/bin/$(TARGET)
+	rm -f $(PREFIX)/bin/$(TARGET)
