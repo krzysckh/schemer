@@ -1,7 +1,7 @@
 CC=clang
 TARGET=schemer
 PREFIX=/usr/local
-CFLAGS=-Wall -Wextra -std=c99 -pedantic \
+CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
        -I. -I./third-party/chibi-scheme/include -I/usr/local/include \
        -Wno-unused-parameter \
        -Wno-unused-command-line-argument \
@@ -33,8 +33,8 @@ all: any2c chibi $(OFILES) schemer.o res-handler.o
 libschemer.a:
 	mkdir -p /tmp/schemer-tmp/ || false
 	rm -f /tmp/schemer-tmp/*
-	ar --output /tmp/schemer-tmp/ x ./third-party/chibi-scheme/libchibi-scheme.a
-	ar -r libschemer.a /tmp/schemer-tmp/*.o $(OFILES)
+	./create-chibi-ofiles
+	ar r libschemer.a /tmp/schemer-tmp/*.o $(OFILES)
 	rm -rf /tmp/schemer-tmp
 any2c: any2c.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DANY2C compiler.c any2c.c -o any2c

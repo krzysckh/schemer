@@ -150,7 +150,9 @@ int main (int argc, char **argv) {
     (write-resource-header)
     (write-main)
     (sys '(mkdir -p ./build/lscm/))
-    (sys '(ar --output ./build/lscm/ x /usr/local/lib/libschemer.a))
+    (sys '(cd ./build/lscm &&
+	   ar x /usr/local/lib/libschemer.a &&
+	   cd ../../ ))
     (sys `(cc -o ,executable-name
            -g
            -I/usr/local/include -L/usr/local/lib

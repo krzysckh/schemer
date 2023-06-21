@@ -1,0 +1,9 @@
+#!/bin/sh
+# this sucks
+
+SCHEMER_BUILD_DIR=`pwd`
+cd /tmp/schemer-tmp/ || false
+
+ar x "$SCHEMER_BUILD_DIR/third-party/chibi-scheme/libchibi-scheme.a"
+cd "$SCHEMER_BUILD_DIR"
+
