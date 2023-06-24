@@ -124,8 +124,8 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
 
   S(v, "plot")
     include_scm_plot_scm(scm_ctx);
-  else S(v, "game")
-    include_scm_game_scm(scm_ctx);
+  else S(v, "game2d")
+    include_scm_game2d_scm(scm_ctx);
   else S(v, "make")
     include_scm_make_scm(scm_ctx);
   else S(v, "colors")
@@ -134,6 +134,8 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
     include_scm_click_scm(scm_ctx);
   else S(v, "shapes")
     include_scm_shapes_scm(scm_ctx);
+  else S(v, "ui")
+    include_scm_ui_scm(scm_ctx);
   else S(v, "core")
     include_scm_core_scm(scm_ctx);
   else S(v, "__CORE__")

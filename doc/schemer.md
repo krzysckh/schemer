@@ -128,6 +128,12 @@ List of extensions and their description:
   - `(set-nth l n v)` - returns *l* with value on position *n* changed to *v*
   - `(file->char-list path)` - returns file *path* as a list of characters
   - `(string-replace-char s c1 c2)` - replace *c1* with *c2* in *s*
+  - `(close-window)` - closes the window, or - if called before loading -
+     disables it.
+  - `(achange asc k v)` - change the value referenced by *k* in the association
+    *asc* to *v*, do nothing if *k* doesn't exist.
+  - `(aput asc k v)` - same as above, but append *'(k v)* to *asc* if *k*
+    doesn't exist
 - *plot*, defines functions, and variables for drawing plots:
   - `default-plot-options` - default list of options passed to *(plot)*
   - `(plot-set-xy opt v)` - sets x and y axis for opt *opt*, where v =
@@ -144,6 +150,22 @@ List of extensions and their description:
   - `(define-source path)` - same as above
   - `(set-executable-name s)` - sets the executable name for *schemer build*
   - `(make)` - write required flies. Always call it at the bottom of *make.scm*
+- *game2d*, defines some helper functions for 2d games:
+  - `(sprite draw move)` - both *draw* and *move* are called each frame with
+    *self* as an argument, where self is an *lis-ref* of the sprite
+    in an internal *g2d-sprites* list. It [*self*] can be then used to access
+    values of the sprite.
+  - `(spr-x spr)` - gets *x* from sprite *spr*
+  - `(spr-y spr)` - gets *y* from sprite *spr*
+  - `(sspr-x spr x)` - sets *x* for sprite *spr*
+  - `(sspr-y spr y)` - sets *y* for sprite *spr*
+  - `(spr-v spr v)` - gets additional value *v* from sprite *spr*
+  - `(sspr-v spr v val)` - sets *val* as an additional value *v* for sprite *spr*
+  - `(spr2rect spr)` - gets sprite *spr*'s rect, assuming that
+    *(spr-v spr 'w)* is the sprites' width, and *(spr-v spr 'h)* is the
+    sprites' heigt
+  - `(game2d)` - loops over every sprite, and calls their functions. Call it
+    in *update-screen*.
 
 EXAMPLES
 --------

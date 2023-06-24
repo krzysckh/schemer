@@ -1,7 +1,4 @@
 (use "__CORE__")
-; chibi-scheme init file -> scm2bin.scm -> chibi-scheme init file (as object)
-; -> __CORE__ defined in scm.c as include string for the file
-; -> schemer executable (linked)
 ;
 ; idk man
 
@@ -72,12 +69,13 @@
   (lambda (s)
     (cond
       ((list? s) (for-each set-window-option (map ->string s)))
-      ((string? s) (cond
-                     ((string=? s "nowindow") (dont-init-graphics))
-                     ((string=? s "noresizable") (set-window-resizable #f))
-                     ((string=? s "resizable") (set-window-resizable #t))
-                     (else (error (string-append "unknown option: " s)))))
-      (else (error "set-window-option: unexpected type")))))
+      (else (begin
+              (let ((ss (->string s)))
+                (cond
+                  ((string=? ss "nowindow") (dont-init-graphics))
+                  ((string=? ss "noresizable") (set-window-resizable #f))
+                  ((string=? ss "resizable") (set-window-resizable #t))
+                  (else (error (string-append "unknown option: " ss))))))))))
 
 (define set-nth ; returns a new list
   (lambda (l n v)
@@ -113,3 +111,21 @@
                 (map (lambda (x) (if (eq? x n-c1) n-c2 x))
                      (map char->integer (string->list s))))))) ; wow
 
+(define close-window
+  (lambda ()
+    (set-window-option 'nowindow)))
+
+(define achange
+  (lambda (asc ok ov)
+    (map (lambda (x)
+           (define k (list-ref x 0))
+           (define v (list-ref x 1))
+           (if (eq? ok k)
+             (list k ov)
+             (list k v))) asc)))
+
+(define aput
+  (lambda (asc k v)
+    (if (assq k asc)
+      (achange asc k v)
+      (append asc (list (list k v))))))
