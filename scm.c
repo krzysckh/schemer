@@ -256,7 +256,8 @@ static sexp scm_func_show_image(sexp ctx, sexp self, sexp_sint_t n,
   A(sexp_fixnump(x))
   A(sexp_fixnump(y))
 
-  gui_draw_image(sexp_cpointer_value(image), 0, 0);
+  gui_draw_image(sexp_cpointer_value(image), sexp_unbox_fixnum(x),
+      sexp_unbox_fixnum(y));
 
   return SEXP_VOID;
 }
