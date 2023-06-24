@@ -24,8 +24,6 @@
                                   (- window-height 200) (+ block-w 5)
                                   (+ block-h 5)))
 
-(print blocks-pos)
-
 (define blocks
   (map (lambda (x)
          (sprite (lambda (self)
