@@ -152,7 +152,7 @@ List of extensions and their description:
   - `(make)` - write required flies. Always call it at the bottom of *make.scm*
 - *game2d*, defines some helper functions for 2d games:
   - `(sprite draw move)` - both *draw* and *move* are called each frame with
-    *self* as an argument, where self is an *lis-ref* of the sprite
+    *self* as an argument, where self is an *list-ref* of the sprite
     in an internal *g2d-sprites* list. It [*self*] can be then used to access
     values of the sprite.
   - `(spr-x spr)` - gets *x* from sprite *spr*
@@ -163,9 +163,9 @@ List of extensions and their description:
   - `(sspr-v spr v val)` - sets *val* as an additional value *v* for sprite *spr*
   - `(spr2rect spr)` - gets sprite *spr*'s rect, assuming that
     *(spr-v spr 'w)* is the sprites' width, and *(spr-v spr 'h)* is the
-    sprites' heigt
-  - `(game2d)` - loops over every sprite, and calls their functions. Call it
-    in *update-screen*.
+    sprites' height
+  - `(game2d)` - loops over every sprite and calls their functions. Call it in
+    *update-screen*.
 
 EXAMPLES
 --------
