@@ -19,3 +19,6 @@ all: $(HTMLFILES) $(PDFFILES)
 		-o $@ $<
 clean:
 	rm -f *.html *.pdf
+pub: all
+	yes | pubcpy schemer.html
+	yes | pubcpy schemer.pdf
