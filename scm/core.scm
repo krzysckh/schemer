@@ -35,8 +35,9 @@
 
 (define last
   (lambda (l)
-    (cond ((null? (cdr l)) (car l))
-          (else (last (cdr l))))))
+    (cond
+      ((null? l) #f)
+      (else (car (reverse l))))))
 
 (define flatten
   (lambda (l)
