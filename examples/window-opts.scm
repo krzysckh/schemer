@@ -8,6 +8,9 @@
 
 (define-background-color black)
 
+(define on-load
+  (lambda () #f))
+
 (define on-exit
   (lambda ()
     (print "window closed, yet i'm still here. called just once, \
