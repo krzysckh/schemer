@@ -136,6 +136,7 @@ List of extensions and their description:
     *asc* to *v*, do nothing if *k* doesn't exist.
   - `(aput asc k v)` - same as above, but append *'(k v)* to *asc* if *k*
     doesn't exist
+  - `(keys asc)` - returns all keys of association *asc*
 - *plot*, defines functions, and variables for drawing plots:
   - `default-plot-options` - default list of options passed to *(plot)*
   - `(plot-set-xy opt v)` - sets x and y axis for opt *opt*, where v =

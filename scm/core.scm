@@ -130,3 +130,7 @@
     (if (assq k asc)
       (achange asc k v)
       (append asc (list (list k v))))))
+
+(define keys
+  (lambda (asc)
+    (map car asc)))

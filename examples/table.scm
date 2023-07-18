@@ -12,16 +12,15 @@
   (set! color-ctr (modulo (+ 1 color-ctr) (length named-colors-list)))
   (list-ref named-colors-list color-ctr))
 
-(define (on-load)
-  (set-window-size win-w win-h))
-
 (define tbl-rects (ui-table 0 0 win-w win-h (map (lambda (x) (range 0 x))
                                                  (range 1 20))))
-
 (define tbl-colors (map (lambda (_) (next-color))
                         (range 0 (/ (length (flatten tbl-rects)) 4))))
 
-(for-each print tbl-rects)
+
+(define (on-load)
+  (set-window-size win-w win-h)
+  (ui-init))
 
 (define (update-screen)
   (define i 0)
