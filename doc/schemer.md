@@ -55,6 +55,8 @@ it is extended with various functions.
 `(set-window-resizable b)` - set window to resizable or not (see EXTENSIONS ->
 core -> *set-window-option*)
 
+`(rand)` - get a random float from 0 to 1
+
 `(use string)` adds a library or a file. if string is one of:
 
 MAIN LOOP

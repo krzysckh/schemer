@@ -371,6 +371,10 @@ static sexp scm_func_compiler_add_resource(sexp ctx, sexp self, sexp_sint_t n,
   return SEXP_VOID;
 }
 
+static sexp scm_func_rand(sexp ctx, sexp self, sexp_sint_t n) {
+  return sexp_make_flonum(ctx, ((double)rand())/RAND_MAX);
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -437,6 +441,9 @@ static void define_foreign(void) {
       "compiler-add-resource", 1, scm_func_compiler_add_resource);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "rand", 0, scm_func_rand);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);
 }
 
@@ -466,6 +473,7 @@ void scm_run_onload(void) {
 
 void init_scheme(char *path) {
   A(scm_ctx == NULL);
+  srand(time(0));
 
   sexp_scheme_init();
   scm_ctx = sexp_make_eval_context(NULL, NULL, NULL, 0, 0);
