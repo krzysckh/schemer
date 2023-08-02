@@ -59,6 +59,7 @@
       ((number? x) (number->string x))
       ((symbol? x) (symbol->string x))
       ((boolean? x) (bool->string x))
+      ((char? x) (string x))
       ((string? x) x)
       (else (error "->string: unexpected type")))))
 
@@ -134,3 +135,11 @@
 (define keys
   (lambda (asc)
     (map car asc)))
+
+(define filter
+  (lambda (f l)
+    (cond
+      ((null? l) '())
+      ((f (car l)) (cons (car l) (filter f (cdr l))))
+      (else (filter f (cdr l))))))
+
