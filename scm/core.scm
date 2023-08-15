@@ -143,3 +143,45 @@
       ((f (car l)) (cons (car l) (filter f (cdr l))))
       (else (filter f (cdr l))))))
 
+(define has
+  (lambda (l x)
+    (if (null? l)
+      #f
+      (if (eq? (car l) x)
+        #t
+        (has (cdr l) x)))))
+
+(define split-string
+  (lambda (s split)
+    (define last 0)
+    (define schr (car (string->list (->string split))))
+    (define sl (string->list s))
+
+    (define split-points (filter
+                           (lambda (x) x)
+                           (map (lambda (x)
+                                  (if (eq? (list-ref sl x) schr) x #f))
+                                (range 0 (length sl)))))
+    (map (lambda (x)
+           (define ss (substring s last x))
+           (set! last (+ x 1))
+           ss)
+         (append split-points (list (string-length s))))))
+
+
+(define get-args
+  (lambda ()
+    (define all-args
+      (map (lambda (x)
+             (if (eq? (car (string->list x)) #\-)
+               (if (has (string->list x) #\=)
+                 (split-string x "=")
+                 (list x #t))
+               (list 'optarg x)))
+           (cdr argv)))
+    (list (list 'optarg
+                (flatten
+                  (map cdr
+                       (filter (lambda (x) (eq? (car x) 'optarg)) all-args))))
+          (list 'arg
+                (filter (lambda (x) (not (eq? (car x) 'optarg))) all-args)))))

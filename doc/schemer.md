@@ -137,6 +137,13 @@ List of extensions and their description:
   - `(aput asc k v)` - same as above, but append *'(k v)* to *asc* if *k*
     doesn't exist
   - `(keys asc)` - returns all keys of association *asc*
+  - `(filter f l)` - filters *l* by applying *f*
+  - `(has l x)` - checks if *x* is contained in *l*
+  - `(split-string s split)` - splits string *s* on *split*
+  - `(get-args)` - returns parsed *argv* as '((arg (("-arg" "value")
+     ("-other" "value"))) (optarg ("optarg1" "optarg2")))
+     for program called like: `./program.scm -arg=value -other=value optarg1
+     optarg2`
 - *plot*, defines functions, and variables for drawing plots:
   - `default-plot-options` - default list of options passed to *(plot)*
   - `(plot-set-xy opt v)` - sets x and y axis for opt *opt*, where v =
