@@ -1,13 +1,29 @@
 #include "schemer.h"
 
 #include <stdio.h>
-#include <err.h>
 #include <ctype.h>
+
+#ifdef USE_FFI
+#include <dlfcn.h>
+#include <ffi.h>
+
+struct ffi_function {
+  ffi_cif *cif;
+  ffi_type *atypes;
+  char *name;
+  void *fp;
+  int ret_type;
+};
+
+struct ffi_function *ffi_functions;
+int n_ffi_functions = 0;
+#endif
 
 #include <chibi/eval.h>
 #include <chibi/gc_heap.h>
 
 #include <raylib.h>
+#include <err.h>
 
 extern Font default_font;
 
@@ -136,6 +152,8 @@ static sexp scm_func_use(sexp ctx, sexp self, sexp_sint_t n,
     include_scm_shapes_scm(scm_ctx);
   else S(v, "ui")
     include_scm_ui_scm(scm_ctx);
+  else S(v, "ffi")
+    include_scm_ffi_scm(scm_ctx);
   else S(v, "core")
     include_scm_core_scm(scm_ctx);
   else S(v, "__CORE__")
@@ -373,6 +391,149 @@ static sexp scm_func_rand(sexp ctx, sexp self, sexp_sint_t n) {
   return sexp_make_flonum(ctx, ((double)rand())/RAND_MAX);
 }
 
+static sexp scm_func_ffi_load(sexp ctx, sexp self, sexp_sint_t n,
+    sexp path) {
+#if USE_FFI
+  void *p;
+  A(sexp_stringp(path));
+
+  p = dlopen(sexp_string_data(path), RTLD_NOW);
+  if (p == NULL)
+    err(errno, "cannot open %s", sexp_string_data(path));
+
+  return sexp_make_cpointer(ctx, SEXP_CPOINTER, p, NULL, 0);
+}
+
+static ffi_type inttotype(int x) {
+  switch (x) {
+    case 0:  return ffi_type_void;
+    case 1:  return ffi_type_uint8;
+    case 2:  return ffi_type_sint8;
+    case 3:  return ffi_type_uint16;
+    case 4:  return ffi_type_sint16;
+    case 5:  return ffi_type_uint32;
+    case 6:  return ffi_type_sint32;
+    case 7:  return ffi_type_uint64;
+    case 8:  return ffi_type_sint64;
+    case 9:  return ffi_type_float;
+    case 10: return ffi_type_double;
+    case 11: return ffi_type_pointer;
+    default: errx(1, "unknown type");
+  }
+
+  /* unreachable */
+#else
+  errx(1, "compiled without ffi support");
+#endif
+}
+
+static sexp scm_func_ffi_call(sexp ctx, sexp self, sexp_sint_t n,
+    sexp name, sexp args) {
+#ifdef USE_FFI
+  abort();
+  A(sexp_stringp(name));
+  A(sexp_listp(ctx, args));
+
+  struct ffi_function *f = NULL;
+  int i, nargs = sexp_unbox_fixnum(sexp_length_op(ctx, self, n, args));
+  /*void *fargs = malloc( * nargs);*/
+  void *val,
+       **values = malloc(sizeof(void*) * nargs),
+       *retval;
+  sexp a_vec = sexp_list_to_vector_op(ctx, self, n, args);
+
+  for (i = 0; i < n_ffi_functions; ++i)
+    S(ffi_functions[i].name, sexp_string_data(name)) {
+      f = &ffi_functions[i];
+      break;
+    }
+
+  if (!f)
+    errx(1, "no such function: %s", sexp_string_data(name));
+
+  retval = malloc(inttotype(f->ret_type).size); /* TODO: oh hell nah */
+  for (i = 0; i < nargs; ++i) {
+
+    warnx("TYPE: %d", f->atypes[i].type);
+    if (f->atypes[i].type == FFI_TYPE_POINTER) {
+      val = sexp_string_data(sexp_vector_ref(a_vec, i));
+    } else {
+      val = malloc(f->atypes[i].size);
+      *(uint64_t*)val = sexp_unbox_fixnum(sexp_vector_ref(a_vec, i));
+    }
+
+    values[i] = &val;
+  }
+
+  ffi_call(f->cif, f->fp, retval, values);
+
+  switch (f->ret_type) {
+    case 0:  return SEXP_VOID;
+    case 1:  return sexp_make_fixnum(*(uint8_t*)retval);
+    case 2:  return sexp_make_fixnum(*(int8_t*)retval);
+    case 3:  return sexp_make_fixnum(*(uint16_t*)retval);
+    case 4:  return sexp_make_fixnum(*(int16_t*)retval);
+    case 5:  return sexp_make_fixnum(*(uint32_t*)retval);
+    case 6:  return sexp_make_fixnum(*(int32_t*)retval);
+    case 7:  return sexp_make_fixnum(*(uint64_t*)retval);
+    case 8:  return sexp_make_fixnum(*(int64_t*)retval);
+    case 9:  return sexp_make_fixnum(*(float*)retval);
+    case 10: return sexp_make_fixnum(*(double*)retval);
+    case 11: return sexp_make_cpointer(ctx, SEXP_CPOINTER, retval, NULL, 0);
+    default: errx(1, "unreachable");
+  }
+#else
+  errx(1, "compiled without ffi support");
+#endif
+}
+
+static sexp scm_func_ffi_define(sexp ctx, sexp self, sexp_sint_t n,
+    sexp lib, sexp type, sexp name, sexp args, sexp scm_name) {
+#if USE_FFI
+  void *l, *f;
+  char *nam, *snam;
+  ffi_type t, *a;
+  ffi_cif *cif = malloc(sizeof(ffi_cif));
+  int i, nargs;
+  sexp a_vec;
+
+  A(sexp_cpointerp(lib));
+  A(sexp_numberp(type));
+  A(sexp_stringp(name));
+  A(sexp_listp(ctx, args));
+  A(sexp_stringp(scm_name));
+
+  l = sexp_cpointer_value(lib);
+  t = inttotype(sexp_unbox_fixnum(type));
+  nam = sexp_string_data(name);
+  nargs = sexp_unbox_fixnum(sexp_length_op(ctx, self, n, args));
+  a = malloc(sizeof(ffi_type) * nargs);
+  snam = sexp_string_data(scm_name);
+  a_vec = sexp_list_to_vector(ctx, args);
+
+  for (i = 0; i < nargs; ++i)
+    a[i] = inttotype(sexp_unbox_fixnum(sexp_vector_ref(a_vec, i)));
+
+  f = dlsym(l, nam);
+
+  ffi_prep_cif(cif, FFI_DEFAULT_ABI,
+      sexp_unbox_fixnum(sexp_length_op(ctx, self, n, args)), &t, &a);
+
+  ffi_functions = realloc(ffi_functions, sizeof(struct ffi_function) *
+      (1 + n_ffi_functions));
+  ffi_functions[n_ffi_functions].cif = cif;
+  ffi_functions[n_ffi_functions].fp = f;
+  ffi_functions[n_ffi_functions].ret_type = sexp_unbox_fixnum(type);
+  ffi_functions[n_ffi_functions].name = strdup(snam);
+  ffi_functions[n_ffi_functions].atypes = a;
+  n_ffi_functions++;
+
+  return SEXP_VOID;
+#else
+  errx(1, "compiled without ffi support");
+#endif
+}
+
 void scm_update_screen(void) {
   sexp s;
 
@@ -440,6 +601,15 @@ static void define_foreign(void) {
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "rand", 0, scm_func_rand);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "ffi-load", 1, scm_func_ffi_load);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "ffi-define", 5, scm_func_ffi_define);
+
+  sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
+      "ffi-call", 2, scm_func_ffi_call);
 
   sexp_define_foreign(scm_ctx, sexp_context_env(scm_ctx),
       "use", 1, scm_func_use);
