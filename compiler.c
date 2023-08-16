@@ -9,9 +9,9 @@
 #include <err.h>
 #include <libgen.h>
 
-#ifdef __linux__
+#if defined(__linux__)
 #include <linux/limits.h>
-#else
+#elif defined(unix) /* bsd */
 #include <sys/syslimits.h>
 #endif
 
@@ -86,7 +86,11 @@ char *get_contents_of_%s(void) {\n\
   for (i = 0; i < v_l; ++i) ret[i] = v[i]; return ret;}\n\
 int include_%s(sexp ctx) {\n\
   sexp e, obj;\n\
+#ifdef _WIN32\n\
+  char *fname = tempnam(\"\\\\\", \"scmr\");\n\
+#else\n\
   char *fname = tmpnam(NULL);\n\
+#endif\n\
   FILE *f = fopen(fname, \"w\");\n\
 \n\
   fwrite(v, 1, v_l, f);\n\
@@ -134,7 +138,7 @@ void schemer_compile(void) {
         "schemer project?");
   closedir(build_dir);
 
-  AOR(mkdir("./build/resources", 0700) != -1
+  AOR(_mkdir("./build/resources", 0700) != -1
       || access("./build/resources", F_OK) != -1)
     errx(1, "cannot create ./build/resources");
 

@@ -54,3 +54,9 @@ void run_gui(void);
 
 #define S(a, b) if (strcmp((a), (b)) == 0)
 
+#ifdef _WIN32
+#define _mkdir(x,y) mkdir(x)
+#else
+#define _mkdir(x,y) mkdir(x,y)
+#endif
+
