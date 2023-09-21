@@ -158,7 +158,12 @@ List of extensions and their description:
 - *make*, defines functions intended to be used in *make.scm*
   - `(define-resource path)` - adds *path* to the bundle.
   - `(define-source path)` - same as above
-  - `(set-executable-name s)` - sets the executable name for *schemer build*
+  - `(set-executable-name target s)` - sets the executable name for
+     *schemer build*
+  - `(set-target target)` - sets the target for compilation. *target* can be one
+    of: *win64* - for mingw cross-compilation, *local* for local CC call.
+    ***warning:*** win64 cross-compilation is in a very pre-pre-alpha stage
+    it may work, but it also may not, and the second option is more probable.
   - `(make)` - write required flies. Always call it at the bottom of *make.scm*
 - *game2d*, defines some helper functions for 2d games:
   - `(sprite draw move)` - both *draw* and *move* are called each frame with

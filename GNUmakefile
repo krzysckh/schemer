@@ -67,7 +67,7 @@ chibi:
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0" && touch .chibi-compiled)
 clean:
 	$(MAKE) -C doc clean
-	rm -rf $(TARGET) $(TARGET).exe *.o *.core canada1500.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a create-chibi-ofiles ./third-party/chibi-scheme/lib/init-7.o
+	rm -rf $(TARGET) $(TARGET).exe *.o *.core canada1500.c scm/*.scm.c scm/*.o scm/*.obj any2c res-handler.c libschemer.a create-chibi-ofiles ./third-party/chibi-scheme/lib/init-7.o *.obj
 	rm -rf /tmp/schemer-tmp
 full-clean: clean
 	rm -f .chibi-compiled
