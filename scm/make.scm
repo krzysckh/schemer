@@ -177,8 +177,7 @@ int main (int argc, char **argv) {
            (set! LIBSCHEMER "build/libschemer.a")
            (set! CC "x86_64-w64-mingw32-gcc")
            (set! LIBS '("-static" "build/libraylib.a"))
-           (set! LDFLAGS '(-lm -lopengl32 -lgdi32 -lwinmm -lmingw32 -lssp
-                               -fstack-protector))
+           (set! LDFLAGS '(-lwinmm -lgdi32 -lssp -fstack-protector))
            (set! CFLAGS '(-g -w -I./build/inc/))
            (sys '(mkdir -p ./build/inc/))
            (make-download
