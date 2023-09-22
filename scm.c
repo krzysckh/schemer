@@ -395,9 +395,20 @@ static sexp scm_func_ffi_load(sexp ctx, sexp self, sexp_sint_t n,
     sexp path) {
 #if USE_FFI
   void *p;
+  char *pp, *ps;
   A(sexp_stringp(path));
 
-  p = dlopen(sexp_string_data(path), RTLD_NOW);
+  ps = strdup(sexp_string_data(path));
+
+  if (is_compiled && is_compiled_in(ps)) {
+    pp = compiled_path_to_filename(ps);
+    if (pp) {
+      free(ps);
+      ps = pp;
+    }
+  }
+
+  p = dlopen(ps, RTLD_NOW);
   if (p == NULL)
     err(errno, "cannot open %s", sexp_string_data(path));
 
