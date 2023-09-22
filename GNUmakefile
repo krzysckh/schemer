@@ -6,13 +6,14 @@ CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
        -Wno-unused-parameter \
        -Wno-unused-command-line-argument \
        -Wno-implicit-function-declaration \
+       -DUSE_FFI \
        -g
 
-LDFLAGS=-L./third-party/chibi-scheme -L/usr/local/lib -lraylib -lm -lutil
+LDFLAGS=-L./third-party/chibi-scheme -L/usr/local/lib -lraylib -lm -lutil -lffi
 
 OFILES=scm.o canada1500.o gui.o compiler.o \
 	   scm/colors.o scm/plot.o scm/core.o scm/shapes.o scm/click.o scm/game2d.o \
-	   scm/make.o scm/ui.o \
+	   scm/make.o scm/ui.o scm/ffi.o \
 	   third-party/chibi-scheme/lib/init-7.o
 # what the hell lmaoo
 
@@ -22,7 +23,7 @@ SCHEME=LD_LIBRARY_PATH="./third-party/chibi-scheme/:" \
 SCMFLAGS=-A ./third-party/chibi-scheme/lib/ -q
 #CHIBI-FFI=$(SCHEME) $(SCMFLAGS) ./chibi-scheme/tools/chibi-ffi
 
-.PHONY: chibi
+.PHONY: chibi windows
 .SUFFIXES: .scm .o
 
 all: any2c chibi $(OFILES) schemer.o res-handler.o
@@ -30,6 +31,8 @@ all: any2c chibi $(OFILES) schemer.o res-handler.o
 	$(CC) $(LDFLAGS) -o $(TARGET) $(OFILES) schemer.o res-handler.o \
 		./third-party/chibi-scheme/libchibi-scheme.a
 	$(MAKE) libschemer.a
+windows: all
+	./build-windows.sh "i am running from a makefile"
 libschemer.a: create-chibi-ofiles
 	mkdir -p /tmp/schemer-tmp/ || false
 	rm -f /tmp/schemer-tmp/*
@@ -64,7 +67,7 @@ chibi:
 		CPPFLAGS="-DSEXP_USE_STATIC_LIBS -DSEXP_USE_STATIC_LIBS_NO_INCLUDE=0" && touch .chibi-compiled)
 clean:
 	$(MAKE) -C doc clean
-	rm -rf $(TARGET) *.o *.core canada1500.c scm/*.scm.c scm/*.o any2c res-handler.c libschemer.a create-chibi-ofiles
+	rm -rf $(TARGET) $(TARGET).exe *.o *.core canada1500.c scm/*.scm.c scm/*.o scm/*.obj any2c res-handler.c libschemer.a create-chibi-ofiles ./third-party/chibi-scheme/lib/init-7.o *.obj
 	rm -rf /tmp/schemer-tmp
 full-clean: clean
 	rm -f .chibi-compiled

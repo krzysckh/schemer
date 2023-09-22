@@ -1,6 +1,7 @@
 #include "schemer.h"
 
 #include <stdio.h>
+
 #include <raylib.h>
 #include <err.h>
 

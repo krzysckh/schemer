@@ -1,7 +1,8 @@
 (use "core")
 
 (define make-resources '())
-(define executable-name "a.out")
+(define executable-name '((local "a.out")))
+(define targets '(local))
 
 (define define-resource
   (lambda (path)
@@ -11,8 +12,14 @@
 (define define-source define-resource)
 
 (define set-executable-name
-  (lambda (s)
-    (set! executable-name s)))
+  (lambda (target s)
+    (set! executable-name (aput executable-name target s))))
+
+(define set-target
+  (lambda (l)
+    (if (list? l)
+      (set! targets l)
+      (set! targets (list l)))))
 
 (define ->symbol
   (lambda (x)
@@ -138,26 +145,63 @@ int main (int argc, char **argv) {
 
 ")))))
 
+; TODO: more universal approach
+; also, downloading pre-compiled stuff from my website is kinda cringe,
+; but i do that so i can save time myself
+(define make-download
+  (lambda (url path)
+    (print (string-append "... " path))
+    (sys `(wget -q ,url -O ,path))
+    (print (string-append "OK  " path))))
+
 (define __make-continue__
   (lambda ()
     (write-resource-header)
     (write-main)
-    (sys '(mkdir -p ./build/lscm/))
-    (sys '(cd ./build/lscm &&
-	   ar x /usr/local/lib/libschemer.a &&
-	   cd ../../ ))
-    (sys `(cc -o ,executable-name
-           -g
-           -I/usr/local/include -L/usr/local/lib
-           -I./build
-           -Wno-unused-parameter
-           -Wno-int-conversion
-           -Wno-implicit-function-declaration
-           -lraylib -lm -lutil
-           ./build/lscm/*.o
-           ,(if (> (length make-resources) 0) "./build/resources/*.c" "")
-           ./build/res-handler.c
-           ./build/main.c))))
+    (for-each (lambda (target)
+      (define CC "cc")
+      (define CFLAGS '(-g -I/usr/local/include -L/usr/local/lib -I./build
+        -Wno-unused-parameter -Wno-int-conversion
+        -Wno-implicit-function-declaration))
+      (define LDFLAGS '(-lraylib -lm -lutil -lffi))
+      (define LIBSCHEMER "/usr/local/lib/libschemer.a")
+      (define LIBS '())
+      ;(define SCMOFILES "./build/lscm/*.o")
+      (define SCMOFILES "")
+
+      (cond
+        ((eq? target 'local) #t)
+        ((eq? target 'win64)
+         (begin
+           (set! SCMOFILES "")
+           (set! LIBSCHEMER "build/libschemer.a")
+           (set! CC "x86_64-w64-mingw32-gcc")
+           (set! LIBS '("-static" "build/libraylib.a"))
+           (set! LDFLAGS '(-lwinmm -lgdi32 -lssp -fstack-protector))
+           (set! CFLAGS '(-g -w -I./build/inc/))
+           (sys '(mkdir -p ./build/inc/))
+           (make-download
+             "https://pub.krzysckh.org/libraylib.a"
+             "./build/libraylib.a")
+           (make-download
+             "https://pub.krzysckh.org/chibi-include.tgz"
+             "./build/inc/chibi-include.tgz")
+           (make-download
+             "https://pub.krzysckh.org/libschemer-w64.a"
+             "./build/libschemer.a")
+           (sys '(cd ./build/inc && tar xzf chibi-include.tgz))))
+        (else (error (string-append "unknown target: " target))))
+
+      (sys `(,CC -o ,(list-ref (assq target executable-name) 1)
+             ,(->string CFLAGS)
+             ,SCMOFILES
+             ,(if (> (length make-resources) 0) "./build/resources/*.c" "")
+             ./build/res-handler.c
+             ./build/main.c
+             ,LIBSCHEMER
+             ,(->string LIBS)
+             ,(->string LDFLAGS))))
+      targets)))
 
 (define make
   (lambda ()

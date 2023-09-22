@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [ -I./chibi-scheme/include/, -I/usr/local/include ]
+  Add: [ -I./chibi-scheme/include/, -I/usr/local/include, -DUSE_FFI ]

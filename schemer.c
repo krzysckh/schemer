@@ -42,7 +42,7 @@ static void schemer_init(char *projname) {
       n_files = sizeof(files) / sizeof(*files),
       i;
 
-  AOR(mkdir(projname, 0700) != -1)
+  AOR(_mkdir(projname, 0700) != -1)
     err(errno, "fatal error");
   else
     printf("+ %s/\n", projname);
@@ -50,7 +50,7 @@ static void schemer_init(char *projname) {
   for (i = 0; i < n_dirs; ++i) {
     snprintf(buf, strlen(projname) + 32, "%s/%s", projname, dirs[i]);
 
-    AOR(mkdir(buf, 0700) != -1)
+    AOR(_mkdir(buf, 0700) != -1)
       err(errno, "fatal error");
     else
       printf("+ %s/\n", buf);

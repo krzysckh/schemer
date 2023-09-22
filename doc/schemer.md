@@ -137,6 +137,13 @@ List of extensions and their description:
   - `(aput asc k v)` - same as above, but append *'(k v)* to *asc* if *k*
     doesn't exist
   - `(keys asc)` - returns all keys of association *asc*
+  - `(filter f l)` - filters *l* by applying *f*
+  - `(has l x)` - checks if *x* is contained in *l*
+  - `(split-string s split)` - splits string *s* on *split*
+  - `(get-args)` - returns parsed *argv* as '((arg (("-arg" "value")
+     ("-other" "value"))) (optarg ("optarg1" "optarg2")))
+     for program called like: `./program.scm -arg=value -other=value optarg1
+     optarg2`
 - *plot*, defines functions, and variables for drawing plots:
   - `default-plot-options` - default list of options passed to *(plot)*
   - `(plot-set-xy opt v)` - sets x and y axis for opt *opt*, where v =
@@ -151,7 +158,12 @@ List of extensions and their description:
 - *make*, defines functions intended to be used in *make.scm*
   - `(define-resource path)` - adds *path* to the bundle.
   - `(define-source path)` - same as above
-  - `(set-executable-name s)` - sets the executable name for *schemer build*
+  - `(set-executable-name target s)` - sets the executable name for
+     *schemer build*
+  - `(set-target target)` - sets the target for compilation. *target* can be one
+    of: *win64* - for mingw cross-compilation, *local* for local CC call.
+    ***warning:*** win64 cross-compilation is in a very pre-pre-alpha stage
+    it may work, but it also may not, and the second option is more probable.
   - `(make)` - write required flies. Always call it at the bottom of *make.scm*
 - *game2d*, defines some helper functions for 2d games:
   - `(sprite draw move)` - both *draw* and *move* are called each frame with
