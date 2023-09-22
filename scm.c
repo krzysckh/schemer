@@ -9,7 +9,7 @@
 
 struct ffi_function {
   ffi_cif *cif;
-  ffi_type *atypes;
+  ffi_type **atypes;
   char *name;
   void *fp;
   int ret_type;
@@ -404,20 +404,20 @@ static sexp scm_func_ffi_load(sexp ctx, sexp self, sexp_sint_t n,
   return sexp_make_cpointer(ctx, SEXP_CPOINTER, p, NULL, 0);
 }
 
-static ffi_type inttotype(int x) {
+static ffi_type *inttotype(int x) {
   switch (x) {
-    case 0:  return ffi_type_void;
-    case 1:  return ffi_type_uint8;
-    case 2:  return ffi_type_sint8;
-    case 3:  return ffi_type_uint16;
-    case 4:  return ffi_type_sint16;
-    case 5:  return ffi_type_uint32;
-    case 6:  return ffi_type_sint32;
-    case 7:  return ffi_type_uint64;
-    case 8:  return ffi_type_sint64;
-    case 9:  return ffi_type_float;
-    case 10: return ffi_type_double;
-    case 11: return ffi_type_pointer;
+    case 0:  return &ffi_type_void;
+    case 1:  return &ffi_type_uint8;
+    case 2:  return &ffi_type_sint8;
+    case 3:  return &ffi_type_uint16;
+    case 4:  return &ffi_type_sint16;
+    case 5:  return &ffi_type_uint32;
+    case 6:  return &ffi_type_sint32;
+    case 7:  return &ffi_type_uint64;
+    case 8:  return &ffi_type_sint64;
+    case 9:  return &ffi_type_float;
+    case 10: return &ffi_type_double;
+    case 11: return &ffi_type_pointer;
     default: errx(1, "unknown type");
   }
 
@@ -430,56 +430,69 @@ static ffi_type inttotype(int x) {
 static sexp scm_func_ffi_call(sexp ctx, sexp self, sexp_sint_t n,
     sexp name, sexp args) {
 #ifdef USE_FFI
-  abort();
   A(sexp_stringp(name));
   A(sexp_listp(ctx, args));
 
+  typedef union {
+    int i;
+    unsigned u;
+    float f;
+    double d;
+    void *v;
+  } whatever;
+
   struct ffi_function *f = NULL;
   int i, nargs = sexp_unbox_fixnum(sexp_length_op(ctx, self, n, args));
-  /*void *fargs = malloc( * nargs);*/
-  void *val,
-       **values = malloc(sizeof(void*) * nargs),
-       *retval;
+  void **values = malloc(sizeof(void*) * nargs), *tmp;
+  whatever ret;
   sexp a_vec = sexp_list_to_vector_op(ctx, self, n, args);
 
-  for (i = 0; i < n_ffi_functions; ++i)
+  for (i = 0; i < n_ffi_functions; ++i) {
     S(ffi_functions[i].name, sexp_string_data(name)) {
       f = &ffi_functions[i];
       break;
     }
+  }
 
   if (!f)
     errx(1, "no such function: %s", sexp_string_data(name));
 
-  retval = malloc(inttotype(f->ret_type).size); /* TODO: oh hell nah */
   for (i = 0; i < nargs; ++i) {
-
-    warnx("TYPE: %d", f->atypes[i].type);
-    if (f->atypes[i].type == FFI_TYPE_POINTER) {
-      val = sexp_string_data(sexp_vector_ref(a_vec, i));
+    if (f->atypes[i]->type == FFI_TYPE_POINTER) {
+      /* TODO: this sucks, it should not just assume it's a string LOL */
+      /* HACK: safety third */
+      tmp = malloc(strlen(sexp_string_data(sexp_vector_ref(a_vec, i*2))) + 1);
+      strcpy(tmp, sexp_string_data(sexp_vector_ref(a_vec, i*2)));
+      values[i] = &tmp;
     } else {
-      val = malloc(f->atypes[i].size);
-      *(uint64_t*)val = sexp_unbox_fixnum(sexp_vector_ref(a_vec, i));
+      /* TODO: figure out why i*2 */
+      tmp = malloc(f->atypes[i]->size);
+      if (f->atypes[i]->type == FFI_TYPE_FLOAT)
+        *(float*)tmp = (float)sexp_unbox_fixnum(sexp_vector_ref(a_vec, i*2));
+      else if (f->atypes[i]->type == FFI_TYPE_DOUBLE)
+        *(double*)tmp = (double)sexp_unbox_fixnum(sexp_vector_ref(a_vec, i*2));
+      else
+        *(sexp_sint_t*)tmp = (sexp_sint_t)
+          sexp_unbox_fixnum(sexp_vector_ref(a_vec, i*2));
+      values[i] = tmp;
     }
-
-    values[i] = &val;
   }
 
-  ffi_call(f->cif, f->fp, retval, values);
+  ffi_call(f->cif, f->fp, &ret.v, values);
 
   switch (f->ret_type) {
     case 0:  return SEXP_VOID;
-    case 1:  return sexp_make_fixnum(*(uint8_t*)retval);
-    case 2:  return sexp_make_fixnum(*(int8_t*)retval);
-    case 3:  return sexp_make_fixnum(*(uint16_t*)retval);
-    case 4:  return sexp_make_fixnum(*(int16_t*)retval);
-    case 5:  return sexp_make_fixnum(*(uint32_t*)retval);
-    case 6:  return sexp_make_fixnum(*(int32_t*)retval);
-    case 7:  return sexp_make_fixnum(*(uint64_t*)retval);
-    case 8:  return sexp_make_fixnum(*(int64_t*)retval);
-    case 9:  return sexp_make_fixnum(*(float*)retval);
-    case 10: return sexp_make_fixnum(*(double*)retval);
-    case 11: return sexp_make_cpointer(ctx, SEXP_CPOINTER, retval, NULL, 0);
+    case 1:  return sexp_make_fixnum((uint8_t)ret.u);
+    case 2:  return sexp_make_fixnum((int8_t)ret.i);
+    case 3:  return sexp_make_fixnum((uint16_t)ret.u);
+    case 4:  return sexp_make_fixnum((int16_t)ret.i);
+    case 5:  return sexp_make_fixnum((uint32_t)ret.u);
+    case 6:  return sexp_make_fixnum((int32_t)ret.i);
+    case 7:  return sexp_make_fixnum((uint64_t)ret.u);
+    case 8:  return sexp_make_fixnum((int64_t)ret.i);
+    case 9:  return sexp_make_flonum(ctx, (float)ret.f);
+    case 10: return sexp_make_flonum(ctx, (double)ret.d);
+    case 11: return sexp_make_cpointer(ctx, SEXP_CPOINTER, ret.v, NULL, 0);
     default: errx(1, "unreachable");
   }
 #else
@@ -492,7 +505,7 @@ static sexp scm_func_ffi_define(sexp ctx, sexp self, sexp_sint_t n,
 #if USE_FFI
   void *l, *f;
   char *nam, *snam;
-  ffi_type t, *a;
+  ffi_type *t, **a;
   ffi_cif *cif = malloc(sizeof(ffi_cif));
   int i, nargs;
   sexp a_vec;
@@ -507,17 +520,17 @@ static sexp scm_func_ffi_define(sexp ctx, sexp self, sexp_sint_t n,
   t = inttotype(sexp_unbox_fixnum(type));
   nam = sexp_string_data(name);
   nargs = sexp_unbox_fixnum(sexp_length_op(ctx, self, n, args));
-  a = malloc(sizeof(ffi_type) * nargs);
+  a = malloc(sizeof(ffi_type*) * nargs);
   snam = sexp_string_data(scm_name);
   a_vec = sexp_list_to_vector(ctx, args);
 
-  for (i = 0; i < nargs; ++i)
+  for (i = 0; i < nargs; ++i) {
     a[i] = inttotype(sexp_unbox_fixnum(sexp_vector_ref(a_vec, i)));
+  }
 
   f = dlsym(l, nam);
 
-  ffi_prep_cif(cif, FFI_DEFAULT_ABI,
-      sexp_unbox_fixnum(sexp_length_op(ctx, self, n, args)), &t, &a);
+  ffi_prep_cif(cif, FFI_DEFAULT_ABI, (unsigned)nargs, t, a);
 
   ffi_functions = realloc(ffi_functions, sizeof(struct ffi_function) *
       (1 + n_ffi_functions));

@@ -1,7 +1,7 @@
 CC=clang
 TARGET=schemer
 PREFIX=/usr/local
-CFLAGS=-Wall -Wextra -O3 -std=c99 -pedantic \
+CFLAGS=-Wall -Wextra -O0 -std=c99 -pedantic \
        -I. -I./third-party/chibi-scheme/include -I/usr/local/include \
        -Wno-unused-parameter \
        -Wno-unused-command-line-argument \

@@ -1,7 +1,5 @@
 (use "core")
 
-(error "not implemented")
-
 ; (ffi "/lib/libc.so"
 ;     '((void putchar (int) putchar)))
 ;        type name   args   name for scheme
@@ -30,6 +28,11 @@
         (define name (->string (list-ref l 1)))
         (define args (map eval (list-ref l 2)))
         (define new-name (->string (list-ref l 3)))
+
+        (eval `(define ,(string->symbol new-name)
+                 (lambda (l)
+                   (ffi-call ,new-name l)))
+              (interaction-environment))
 
         (ffi-define lib-loaded type name args new-name))
       data)))

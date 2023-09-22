@@ -57,6 +57,12 @@ core -> *set-window-option*)
 
 `(rand)` - get a random float from 0 to 1
 
+`(ffi-load ...)` - (see EXTENSIONS -> ffi)
+
+`(ffi-call ...)` - (see EXTENSIONS -> ffi)
+
+`(ffi-define ...)` - (see EXTENSIONS -> ffi)
+
 `(use string)` adds a library or a file. if string is one of:
 
 MAIN LOOP
@@ -181,6 +187,16 @@ List of extensions and their description:
     sprites' height
   - `(game2d)` - loops over every sprite and calls their functions. Call it in
     *update-screen*.
+- *ffi*, defines helpers for *ffi-load*, and *ffi-call*
+  - `(ffi lib data)` - loads functions from *lib*. data should be a list
+    defining functions, e.g.:
+    *'((void putchar (int) c-putchar) (int strlen (ptr) c-strlen))* will define
+    *(c-putchar)* that takes an *int*, and returns nothing, and *strlen*, that
+    will take a *pointer* and return an *int*. the functions will be then 
+    defined in the top level, so you can then call them by their name (the
+    last value in the *data* list, so in the given example *c-strlen*, and
+    *c-putchar*). they can be later caller like this *(c-strlen '("abcd"))*.
+    see *examples/ffi.scm*.
 
 EXAMPLES
 --------
