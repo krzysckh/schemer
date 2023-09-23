@@ -195,7 +195,7 @@ List of extensions and their description:
     will take a *pointer* and return an *int*. the functions will be then 
     defined in the top level, so you can then call them by their name (the
     last value in the *data* list, so in the given example *c-strlen*, and
-    *c-putchar*). they can be later caller like this *(c-strlen '("abcd"))*.
+    *c-putchar*). they can be later caller like this *(c-strlen "abcd")*.
     see *examples/ffi.scm*.
 
 EXAMPLES

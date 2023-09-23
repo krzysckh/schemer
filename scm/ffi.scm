@@ -28,10 +28,16 @@
         (define name (->string (list-ref l 1)))
         (define args (map eval (list-ref l 2)))
         (define new-name (->string (list-ref l 3)))
+        (define arg-names (map
+                            (lambda (x)
+                              (string->symbol
+                                (string-append "_" (number->string x))))
+                            (range 0 (length args))))
+        (define arg-list (append '(list) arg-names))
 
         (eval `(define ,(string->symbol new-name)
-                 (lambda (l)
-                   (ffi-call ,new-name l)))
+                 (lambda ,arg-names
+                   (ffi-call ,new-name ,arg-list)))
               (interaction-environment))
 
         (ffi-define lib-loaded type name args new-name))
