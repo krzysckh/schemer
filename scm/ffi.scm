@@ -19,6 +19,19 @@
 (define ptr    11)
 (define int sint32)
 
+(define lib-locations '("/lib" "/usr/lib" "/usr/local/lib" "/usr/X11R6/lib"))
+(define find-library
+  (lambda (s)
+    (let ((lib-name (string-append "lib" s ".so"))
+          (libs (flatten (map (lambda (s)
+                                (map (lambda (v) (string-append s "/" v))
+                                     (directory-files s)))
+                              (filter file-exists?  lib-locations)))))
+      (car (reverse (filter true?
+                            (map (lambda (s)
+                                   (if (starts-with (basename s) lib-name)
+                                           s #f)) libs)))))))
+
 (define ffi
   (lambda (lib data)
     (define lib-loaded (ffi-load lib))

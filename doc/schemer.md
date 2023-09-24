@@ -197,6 +197,8 @@ List of extensions and their description:
     last value in the *data* list, so in the given example *c-strlen*, and
     *c-putchar*). they can be later caller like this *(c-strlen "abcd")*.
     see *examples/ffi.scm*.
+  - `(find-library s)` - finds path of library *s* on device. e.g.:
+    *(find-library "c")* -> */usr/lib/libc.so.97.1*
 
 EXAMPLES
 --------

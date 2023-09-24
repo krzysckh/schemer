@@ -151,23 +151,55 @@
         #t
         (has (cdr l) x)))))
 
-(define split-string
-  (lambda (s split)
-    (define last 0)
-    (define schr (car (string->list (->string split))))
-    (define sl (string->list s))
+(define ->char
+  (lambda (x)
+    (cond
+      ((number? x) (->char (number->string x)))
+      ((string? x) (car (string->list x)))
+      ((char? x) x)
+      (else
+        (error "->char: unexpected type")))))
 
-    (define split-points (filter
-                           (lambda (x) x)
-                           (map (lambda (x)
-                                  (if (eq? (list-ref sl x) schr) x #f))
-                                (range 0 (length sl)))))
-    (map (lambda (x)
-           (define ss (substring s last x))
-           (set! last (+ x 1))
-           ss)
-         (append split-points (list (string-length s))))))
+; faster than my implementation
+(define string-split
+  (lambda (str c)
+    (let ((end (string-length str)) (ch (->char c)))
+      (let lp ((from 0) (to 0) (res '()))
+        (cond
+         ((>= to end)
+          (reverse (if (> to from) (cons (substring str from to) res) res)))
+         ((eqv? ch (string-ref str to))
+          (lp (+ to 1) (+ to 1) (cons (substring str from to) res)))
+         (else
+          (lp from (+ to 1) res)))))))
 
+(define split-string string-split)
+
+(define basename
+  (lambda (s)
+    (last (split-string s "/"))))
+
+(define starts-with
+  (lambda (haystack needle)
+    (and (> (string-length haystack) (string-length needle))
+         (string=?
+           (substring haystack 0 (string-length needle))
+           needle))))
+
+(define all-but-last
+  (lambda (l)
+    (reverse (cdr (reverse l)))))
+
+; TODO: figure out a better way || fail if not on unix
+(define directory-files
+  (lambda (dir)
+    (split-string (sys `(ls -1 ,dir)) "\n")))
+    ;(all-but-last (split-string (sys `(ls -1 ,dir)) "\n"))))
+
+(define file-exists?
+  (lambda (f)
+    (if (string=? "0" (sys `(ls ,f ">/dev/null" "2>/dev/null" ";" echo -n $?)))
+      #t #f)))
 
 (define get-args
   (lambda ()
@@ -185,3 +217,8 @@
                        (filter (lambda (x) (eq? (car x) 'optarg)) all-args))))
           (list 'arg
                 (filter (lambda (x) (not (eq? (car x) 'optarg))) all-args)))))
+
+(define true?
+  (lambda (x) x))
+
+(define false? true?)

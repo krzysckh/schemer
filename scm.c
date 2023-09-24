@@ -334,11 +334,35 @@ static sexp scm_func_is_key_pressed(sexp ctx, sexp self, sexp_sint_t n,
     return sexp_make_boolean(IsKeyDown(toupper(sexp_string_data(c)[0])));
 }
 
+/* TODO: free the memory, or figure out the GC */
 static sexp scm_func_system(sexp ctx, sexp self, sexp_sint_t n,
     sexp s) {
+  FILE *p;
+  char *ret = NULL,
+       buf[512] = { 0 };
+  int allocd = 0, sz = 0, read;
+
   A(sexp_stringp(s));
 
-  return sexp_make_fixnum(system(sexp_string_data(s)));
+  p = popen(sexp_string_data(s), "r");
+  if (!p)
+    errx(1, "failed to popen(\"%s\", \"r\"", sexp_string_data(s));
+
+  while (!feof(p)) {
+    read = fread(buf, 1, 512, p);
+
+    if (read > 0) {
+      ret = realloc(ret, allocd + read + 1);
+      strcpy(ret + allocd, buf);
+      allocd += read;
+      ret[allocd] = 0;
+    }
+
+    *buf = 0;
+    sz += read;
+  }
+
+  return sexp_c_string(ctx, ret, sz);
 }
 
 static sexp scm_func_dont_init_graphics(sexp ctx, sexp self, sexp_sint_t n) {

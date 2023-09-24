@@ -14,7 +14,6 @@ char* argv0     = NULL;
 int is_compiled = 0;
 
 static void help(void) {
-  /* TODO: weźże zrób to co w readme obiecane */
   printf("usage: %s [-h] [init project-name] <file.scm> [--] [script args]\n",
       argv0);
 
